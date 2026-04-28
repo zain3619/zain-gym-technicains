@@ -63,7 +63,7 @@ export default function Projects() {
     <section id="projects" className="bg-black py-20 px-6 md:px-12 lg:px-24 scroll-mt-24">
       <div className="max-w-7xl mx-auto text-center mb-16">
         <h3 className="text-gym-green font-bold uppercase tracking-widest text-lg mb-4">Our Projects</h3>
-        <h2 className="text-white text-3xl md:text-5xl font-bold opacity-90">Gyms We're Proud Of</h2>
+        <h2 className="text-white text-3xl md:text-5xl font-bold opacity-90">Gyms We&apos;re Proud Of</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
@@ -113,7 +113,7 @@ export default function Projects() {
       <div className="text-center mt-12">
         <button 
           onClick={() => setShowAll(!showAll)}
-          className="border border-gym-green/40 text-gym-green hover:bg-gym-green hover:text-black font-bold py-2 px-8 rounded text-[10px] uppercase tracking-[0.3em] transition-all duration-300"
+          className="btn-hover-outline btn-outline-green-fill border border-gym-green/40 text-gym-green font-bold py-2 px-8 rounded text-[10px] uppercase tracking-[0.3em] active:scale-[0.98]"
         >
           {showAll ? 'Show Less' : 'View All Projects'}
         </button>

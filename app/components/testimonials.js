@@ -70,7 +70,7 @@ export default function Testimonials() {
                     <Quote className="text-[#97FF02] w-8 h-8 opacity-40" />
                   </div>
                   <p className="text-gray-300 text-sm md:text-base leading-relaxed italic mb-6">
-                    "{review.text}"
+                    &ldquo;{review.text}&rdquo;
                   </p>
                 </div>
                 
@@ -88,7 +88,7 @@ export default function Testimonials() {
         {/* --- Updated Arrows: Vertically Centered & Spread Out --- */}
         <button 
           ref={(node) => setPrevEl(node)}
-          className="absolute left-0 lg:left-[-20px] top-[40%] -translate-y-1/2 z-50 bg-white/5 p-4 rounded-full border border-white/10 text-white hover:bg-[#97FF02] hover:text-black transition-all group"
+          className="btn-hover-icon btn-icon-green-fill absolute left-0 lg:left-[-20px] top-[40%] -translate-y-1/2 z-50 bg-white/5 p-4 rounded-full border border-white/10 text-white group active:scale-[0.98]"
           aria-label="Previous slide"
         >
           <ChevronLeft className="w-6 h-6 group-hover:scale-110 transition-transform" />
@@ -96,7 +96,7 @@ export default function Testimonials() {
         
         <button 
           ref={(node) => setNextEl(node)}
-          className="absolute right-0 lg:right-[-20px] top-[40%] -translate-y-1/2 z-50 bg-white/5 p-4 rounded-full border border-white/10 text-white hover:bg-[#97FF02] hover:text-black transition-all group"
+          className="btn-hover-icon btn-icon-green-fill absolute right-0 lg:right-[-20px] top-[40%] -translate-y-1/2 z-50 bg-white/5 p-4 rounded-full border border-white/10 text-white group active:scale-[0.98]"
           aria-label="Next slide"
         >
           <ChevronRight className="w-6 h-6 group-hover:scale-110 transition-transform" />
@@ -105,21 +105,6 @@ export default function Testimonials() {
         {/* Pagination Dots */}
         <div className="custom-pagination flex justify-center gap-3 mt-12"></div>
       </div>
-
-      <style jsx global>{`
-        .custom-pagination .swiper-pagination-bullet {
-          background: #444 !important;
-          opacity: 1 !important;
-          width: 10px;
-          height: 10px;
-          transition: all 0.3s ease;
-        }
-        .custom-pagination .swiper-pagination-bullet-active {
-          background: #97FF02 !important; 
-          width: 30px !important;
-          border-radius: 5px;
-        }
-      `}</style>
     </section>
   );
 }

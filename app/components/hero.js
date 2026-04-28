@@ -37,10 +37,10 @@ export default function Hero() {
 
         {/* Buttons: Stacked on Mobile, Row on Desktop */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <button className="bg-gym-green text-black font-extrabold px-10 py-4 rounded-md hover:bg-white transition w-full sm:w-56 text-sm md:text-base tracking-widest">
+          <button className="btn-hover-fill btn-fill-white-shift bg-gym-green text-black font-extrabold px-10 py-4 rounded-md w-full sm:w-56 text-sm md:text-base tracking-widest active:scale-[0.98]">
             GET STARTED
           </button>
-          <button className="border-2 border-white text-white font-extrabold px-10 py-4 rounded-md hover:bg-white hover:text-black transition w-full sm:w-56 text-sm md:text-base tracking-widest">
+          <button className="btn-hover-outline  btn-outline-white-fill border-2 border-white text-white font-extrabold px-10 py-4 rounded-md w-full sm:w-56 text-sm md:text-base tracking-widest active:scale-[0.98]">
             CONTACT US
           </button>
         </div>

@@ -63,13 +63,13 @@ export default function Navbar() {
 
         {/* Right Side: CTA Button */}
         <div className="flex items-center gap-4">
-          <button className="hidden sm:block bg-gym-green text-black font-bold px-8 py-3 rounded-md hover:bg-white transition-all duration-300 text-xs md:text-sm uppercase">
+          <button className="btn-hover-fill btn-fill-white-shift hidden sm:block bg-gym-green text-black font-bold px-8 py-3 rounded-md text-xs md:text-sm uppercase active:scale-[0.98]">
             Get a Quote
           </button>
 
           {/* Mobile Menu Button */}
           <button 
-            className="lg:hidden text-white p-2"
+            className="btn-hover-icon lg:hidden text-white p-2 rounded-full hover:bg-white/10 active:scale-[0.98]"
             onClick={() => setIsOpen(!isOpen)}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
@@ -94,7 +94,7 @@ export default function Navbar() {
                 </a>
               </li>
             ))}
-            <button className="bg-gym-green text-black font-bold px-6 py-3 rounded-md w-full mt-2 text-sm uppercase">
+            <button className="btn-hover-fill btn-fill-white-shift bg-gym-green text-black font-bold px-6 py-3 rounded-md w-full mt-2 text-sm uppercase active:scale-[0.98]">
               Get a Quote
             </button>
           </ul>

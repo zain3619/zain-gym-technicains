@@ -34,9 +34,130 @@ body {
   padding: 0;
 }
 
+.btn-hover-fill {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.btn-hover-fill:hover,
+.btn-hover-fill:focus-visible,
+.btn-hover-fill:active {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(151, 255, 2, 0.22);
+}
+
+.btn-fill-white-shift:hover,
+.btn-fill-white-shift:focus-visible,
+.btn-fill-white-shift:active {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.btn-fill-green-shift:hover,
+.btn-fill-green-shift:focus-visible,
+.btn-fill-green-shift:active {
+  background-color: #8ade02;
+  color: #000000;
+}
+
+.btn-hover-outline {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.btn-hover-outline:hover,
+.btn-hover-outline:focus-visible,
+.btn-hover-outline:active {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(151, 255, 2, 0.18);
+}
+
+.btn-outline-green-fill:hover,
+.btn-outline-green-fill:focus-visible,
+.btn-outline-green-fill:active {
+  background-color: var(--gym-green);
+  border-color: var(--gym-green);
+  color: #000000;
+}
+
+.btn-outline-white-fill:hover,
+.btn-outline-white-fill:focus-visible,
+.btn-outline-white-fill:active {
+  background-color: #ffffff;
+  border-color: #ffffff;
+  color: #000000;
+}
+
+.btn-hover-icon {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.btn-hover-icon:hover,
+.btn-hover-icon:focus-visible,
+.btn-hover-icon:active {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 10px 24px rgba(151, 255, 2, 0.2);
+}
+
+.btn-icon-green-fill:hover,
+.btn-icon-green-fill:focus-visible,
+.btn-icon-green-fill:active {
+  background-color: var(--gym-green);
+  color: #000000;
+}
+
+.btn-hover-tab {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.btn-hover-tab:hover,
+.btn-hover-tab:focus-visible,
+.btn-hover-tab:active {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(151, 255, 2, 0.18);
+}
+
+.btn-tab-hover:hover,
+.btn-tab-hover:focus-visible,
+.btn-tab-hover:active {
+  border-color: rgba(130, 205, 43, 0.5);
+  color: #ffffff;
+}
+
+.custom-pagination .swiper-pagination-bullet {
+  background: #444 !important;
+  opacity: 1 !important;
+  width: 10px;
+  height: 10px;
+  transition: all 0.3s ease;
+}
+
+.custom-pagination .swiper-pagination-bullet-active {
+  background: #97ff02 !important;
+  width: 30px !important;
+  border-radius: 5px;
+}
+
 /* Next.js Image component fix */
 img {
   max-width: 100%;
   height: auto;
 }
-

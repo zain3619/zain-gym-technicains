@@ -43,7 +43,7 @@ export default function Contact() {
           Contact Us
         </h3>
         <h2 className="text-white text-3xl md:text-5xl font-black ">
-          Let's Build Your Dream Gym
+          Let&apos;s Build Your Dream Gym
         </h2>
       </div>
 
@@ -110,7 +110,7 @@ export default function Contact() {
             
             <button 
               type="submit" 
-              className="w-full bg-[#97FF02] text-black font-black uppercase tracking-tighter py-4 rounded-lg hover:bg-[#8ade02] transition-all text-lg active:scale-[0.98]"
+              className="btn-hover-fill btn-fill-green-shift w-full bg-[#97FF02] text-black font-black uppercase tracking-tighter py-4 rounded-lg text-lg active:scale-[0.98]"
             >
               Send Message
             </button>
