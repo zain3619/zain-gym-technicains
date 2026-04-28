@@ -88,18 +88,18 @@ export default function Testimonials() {
         {/* --- Updated Arrows: Vertically Centered & Spread Out --- */}
         <button 
           ref={(node) => setPrevEl(node)}
-          className="btn-hover-icon btn-icon-green-fill absolute left-0 lg:left-[-20px] top-[40%] -translate-y-1/2 z-50 bg-white/5 p-4 rounded-full border border-white/10 text-white group active:scale-[0.98]"
+          className="btn-hover-icon btn-icon-green-fill absolute left-0 lg:left-[-20px] top-[40%] -translate-y-1/2 z-50 bg-white/5 p-2.5 sm:p-3 md:p-4 rounded-full border border-white/10 text-white group active:scale-[0.98]"
           aria-label="Previous slide"
         >
-          <ChevronLeft className="w-6 h-6 group-hover:scale-110 transition-transform" />
+          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
         </button>
         
         <button 
           ref={(node) => setNextEl(node)}
-          className="btn-hover-icon btn-icon-green-fill absolute right-0 lg:right-[-20px] top-[40%] -translate-y-1/2 z-50 bg-white/5 p-4 rounded-full border border-white/10 text-white group active:scale-[0.98]"
+          className="btn-hover-icon btn-icon-green-fill absolute right-0 lg:right-[-20px] top-[40%] -translate-y-1/2 z-50 bg-white/5 p-2.5 sm:p-3 md:p-4 rounded-full border border-white/10 text-white group active:scale-[0.98]"
           aria-label="Next slide"
         >
-          <ChevronRight className="w-6 h-6 group-hover:scale-110 transition-transform" />
+          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
         </button>
 
         {/* Pagination Dots */}
