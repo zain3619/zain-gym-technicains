@@ -16,7 +16,7 @@ export default function Hero() {
       <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
         
         {/* Sub-heading: Small on mobile, Medium on Desktop */}
-        <h3 className="text-gym-green font-bold tracking-[3px] md:tracking-[5px] uppercase mb-4 text-sm md:text-lg italic">
+        <h3 className="text-gym-green font-bold tracking-[3px] md:tracking-[5px] uppercase mb-4 text-sm md:text-lg">
           We Build
         </h3>
         
@@ -32,7 +32,7 @@ export default function Hero() {
 
         {/* Description: Hidden or smaller on very small screens to keep UI clean */}
         <p className="text-gray-200 text-sm md:text-xl font-light mb-10 max-w-2xl mx-auto leading-relaxed">
-          Equipment, Trainers & Full Setup – All in One Place
+          Equipment, Trainers & Full Setup , All in One Place
         </p>
 
         {/* Buttons: Stacked on Mobile, Row on Desktop */}

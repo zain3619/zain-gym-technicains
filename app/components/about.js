@@ -23,7 +23,7 @@ export default function About() {
           <div className="grid grid-cols-3 gap-4 border-t border-white/10 pt-8">
             <div>
               <h4 className="text-gym-green text-2xl md:text-4xl font-black">
-                8+
+                14+
               </h4>
               <p className="text-white text-[10px] md:text-xs uppercase tracking-wider mt-1">
                 Years Experience

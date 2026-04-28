@@ -65,21 +65,24 @@ export default function Equipment() {
         <h2 className="text-white text-3xl md:text-5xl font-black mb-12">Premium Equipment for Every Need</h2>
         
         {/* Tabs Section */}
-        <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-12">
-          {categories.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => { setActiveTab(tab); setShowAll(false); }}
-              className={`text-sm md:text-base font-medium px-4 py-2 rounded-full transition-all duration-300 ${
-                activeTab === tab 
-                ? 'bg-gym-green text-black font-bold scale-105' 
-                : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+        <div className="relative mb-12">
+  {/* Mobile: Horizontal scrollable row | Desktop: Centered flex wrap */}
+  <div className="flex overflow-x-auto no-scrollbar scroll-smooth md:flex-wrap md:justify-center gap-3 md:gap-6 pb-4 md:pb-0 px-2">
+    {categories.map((tab) => (
+      <button
+        key={tab}
+        onClick={() => { setActiveTab(tab); setShowAll(false); }}
+        className={`whitespace-nowrap text-xs md:text-sm lg:text-base font-bold px-4 py-2 rounded-full border-2 transition-all duration-300 flex-shrink-0 ${
+          activeTab === tab 
+          ? 'bg-gym-green border-gym-green text-black scale-105 shadow-[0_0_15px_rgba(151,255,2,0.3)]' 
+          : 'border-white/10 text-gray-500 hover:border-gym-green/50 hover:text-white'
+        }`}
+      >
+        {tab}
+      </button>
+    ))}
+  </div>
+  </div>
 
         {/* Equipment Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-all duration-500 ease-in-out">

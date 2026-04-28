@@ -34,7 +34,7 @@ export default function Team() {
   ];
 
   return (
-    <section id="team" className="bg-black py-20 px-6 md:px-12 lg:px-24 scroll-mt-24">
+    <section id="team" className="bg-gray-950 py-20 px-6 md:px-12 lg:px-24 scroll-mt-24">
       <div className="max-w-7xl mx-auto text-center mb-16">
         <h3 className="text-gym-green font-bold uppercase tracking-widest text-lg mb-4">Our Team</h3>
         <h2 className="text-white text-3xl md:text-5xl font-black">Experts Behind Your Success</h2>
