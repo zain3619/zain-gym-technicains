@@ -20,6 +20,14 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   const navItems = [
     { name: 'Home', href: '#home' },
     { name: 'About Us', href: '#about' },
@@ -69,37 +77,77 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <button 
-            className="btn-hover-icon lg:hidden text-white p-2 rounded-full hover:bg-white/10 active:scale-[0.98]"
+            className="btn-hover-icon lg:hidden relative flex h-12 w-12 items-center justify-center rounded-full text-white hover:bg-white/10 active:scale-[0.98]"
             onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isOpen}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
-              <path strokeLinecap="round" strokeLinejoin="round" d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-            </svg>
+            <span className="relative h-5 w-6">
+              <span
+                className={`absolute left-0 top-0 h-0.5 w-6 origin-center rounded-full bg-current transition-all duration-300 ease-in-out ${
+                  isOpen ? "translate-y-2 rotate-45" : ""
+                }`}
+              />
+              <span
+                className={`absolute left-0 top-2 h-0.5 w-6 rounded-full bg-current transition-all duration-300 ease-in-out ${
+                  isOpen ? "opacity-0" : "opacity-100"
+                }`}
+              />
+              <span
+                className={`absolute left-0 top-4 h-0.5 w-6 origin-center rounded-full bg-current transition-all duration-300 ease-in-out ${
+                  isOpen ? "-translate-y-2 -rotate-45" : ""
+                }`}
+              />
+            </span>
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
-      {isOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-black border-t border-white/10 py-6 px-10">
-          <ul className="flex flex-col gap-5 text-white text-sm font-medium">
-            {navItems.map((item) => (
-              <li key={item.name}>
+      {/* Mobile Menu Overlay */}
+      <div
+        className={`lg:hidden fixed inset-0 top-[72px] sm:top-[80px] transition-all duration-400 ease-in-out ${
+          isOpen ? "pointer-events-auto bg-black/55 backdrop-blur-[2px]" : "pointer-events-none bg-black/0"
+        }`}
+        onClick={() => setIsOpen(false)}
+      >
+        <div
+          className={`ml-auto flex h-full w-full max-w-sm flex-col border-l border-white/10 bg-[#050505]/95 px-8 py-8 shadow-2xl transition-all duration-500 ease-in-out ${
+            isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+          }`}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <ul className="flex flex-col gap-2 text-white text-sm font-medium">
+            {navItems.map((item, index) => (
+              <li
+                key={item.name}
+                className={`transition-all duration-500 ease-in-out ${
+                  isOpen ? "translate-x-0 opacity-100" : "translate-x-6 opacity-0"
+                }`}
+                style={{ transitionDelay: isOpen ? `${index * 45}ms` : "0ms" }}
+              >
                 <a 
                   href={item.href} 
-                  className="hover:text-gym-green cursor-pointer block py-2 transition-colors" 
+                  className="block rounded-xl border border-transparent px-4 py-3 tracking-wide transition-all duration-300 ease-in-out hover:border-white/10 hover:bg-white/5 hover:text-gym-green" 
                   onClick={() => setIsOpen(false)}
                 >
                   {item.name}
                 </a>
               </li>
             ))}
-            <button className="btn-hover-fill btn-fill-white-shift bg-gym-green text-black font-bold px-6 py-3 rounded-md w-full mt-2 text-sm uppercase active:scale-[0.98]">
+          </ul>
+
+          <div
+            className={`mt-auto pt-6 transition-all duration-500 ease-in-out ${
+              isOpen ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+            }`}
+            style={{ transitionDelay: isOpen ? `${navItems.length * 45}ms` : "0ms" }}
+          >
+            <button className="btn-hover-fill btn-fill-white-shift w-full rounded-xl bg-gym-green px-6 py-3 text-sm font-bold uppercase text-black active:scale-[0.98]">
               Get a Quote
             </button>
-          </ul>
+          </div>
         </div>
-      )}
+      </div>
     </nav>
   );
 }
