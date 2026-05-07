@@ -137,19 +137,19 @@ export default function Footer() {
           <ul className="space-y-5 text-gray-400 text-sm">
             <li className="flex items-center gap-3">
               <Phone size={18} className="text-[#97FF02]" />
-              <span>+92 300 1234567</span>
+              <span>+92 323 3334777</span>
             </li>
             <li className="flex items-center gap-3">
               <MessageCircle size={18} className="text-[#97FF02]" />
-              <span>WhatsApp: +92 300 1234567</span>
+              <span>WhatsApp: +92 323 3334777</span>
             </li>
             <li className="flex items-center gap-3">
               <Mail size={18} className="text-[#97FF02]" />
-              <span>info@zaingym.com</span>
+              <span>m.qaiser76@yahoo.com</span>
             </li>
             <li className="flex items-start gap-3">
               <MapPin size={18} className="text-[#97FF02] shrink-0" />
-              <span>123, Fitness Street, Lahore, Pakistan</span>
+              <span>120, A Block Irrigation Co-operative Housing Society Near Race Club Kot Lakhpat, Lahore, Pakistan</span>
             </li>
           </ul>
         </div>
