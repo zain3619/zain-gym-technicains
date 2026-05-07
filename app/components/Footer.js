@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import Link from 'next/link';
 import { 
   Phone, 
   Mail, 
@@ -8,16 +9,6 @@ import {
 } from 'lucide-react';
 
 export default function Footer() {
-  
-  // 1. Smooth Scroll Function
-  const scrollToSection = (e, id) => {
-    e.preventDefault();
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   // Social Icons Data with SVG paths (Foolproof method for Turbopack)
   const socialLinks = [
     { 
@@ -53,7 +44,7 @@ export default function Footer() {
             </p>
           </div>
           <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-            We provide end-to-end gym solutions including design, equipment, trainers and support.
+            We provide end-to-end gym solutions including gym design, gym setup services, fitness equipment supply, trainers, and support.
           </p>
           
           <div className="flex gap-4">
@@ -74,29 +65,29 @@ export default function Footer() {
           <h4 className="text-lg font-bold mb-6">Quick Links</h4>
           <ul className="space-y-4 text-gray-400 text-sm">
             <li>
-              <button onClick={(e) => scrollToSection(e, 'home')} className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
+              <Link href="/#home" className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
                 Home
-              </button>
+              </Link>
             </li>
             <li>
-              <button onClick={(e) => scrollToSection(e, 'about')} className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
+              <Link href="/#about" className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
                 About Us
-              </button>
+              </Link>
             </li>
             <li>
-              <button onClick={(e) => scrollToSection(e, 'services')} className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
+              <Link href="/#services" className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
                 Services
-              </button>
+              </Link>
             </li>
             <li>
-              <button onClick={(e) => scrollToSection(e, 'projects')} className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
+              <Link href="/#projects" className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
                 Projects
-              </button>
+              </Link>
             </li>
             <li>
-              <button onClick={(e) => scrollToSection(e, 'contact')} className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
+              <Link href="/contact" className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
                 Contact
-              </button>
+              </Link>
             </li>
           </ul>
         </div>
@@ -106,36 +97,36 @@ export default function Footer() {
   <h4 className="text-lg font-bold mb-6">Our Services</h4>
   <ul className="space-y-4 text-gray-400 text-sm">
     <li>
-      <button 
-        onClick={(e) => scrollToSection(e, 'services')} 
+      <Link
+        href="/#services"
         className="hover:text-[#97FF02] transition-colors text-left w-full active:scale-95"
       >
         Gym Design
-      </button>
+      </Link>
     </li>
     <li>
-      <button 
-        onClick={(e) => scrollToSection(e, 'services')} 
+      <Link
+        href="/#services"
         className="hover:text-[#97FF02] transition-colors text-left w-full active:scale-95"
       >
         Equipment Supply
-      </button>
+      </Link>
     </li>
     <li>
-      <button 
-        onClick={(e) => scrollToSection(e, 'services')} 
+      <Link
+        href="/#services"
         className="hover:text-[#97FF02] transition-colors text-left w-full active:scale-95"
       >
         Trainers & Staff
-      </button>
+      </Link>
     </li>
     <li>
-      <button 
-        onClick={(e) => scrollToSection(e, 'services')} 
+      <Link
+        href="/#services"
         className="hover:text-[#97FF02] transition-colors text-left w-full active:scale-95"
       >
         Maintenance & Support
-      </button>
+      </Link>
     </li>
   </ul>
 </div>

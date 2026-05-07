@@ -13,10 +13,10 @@ export default function About() {
             We Build More Than Gyms <br /> We Build Experiences.
           </h2>
           <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-10 max-w-xl">
-            From concept to completion, we deliver world-class gym solutions 
-            combining cutting-edge design top-tier equipment and expert
-            coaching. Our mission is to build powerful fitness environments that
-            drive performance and lasting results
+            From concept to completion, we deliver gym design, gym building,
+            gym setup services, top-tier fitness equipment, and expert support.
+            Our mission is to build powerful fitness environments that drive
+            performance and lasting results.
           </p>
 
           {/* Stats Section */}
@@ -58,7 +58,7 @@ export default function About() {
             <div className="relative z-10 overflow-hidden">
               <img
                 src="https://media.istockphoto.com/id/2075354173/photo/fitness-couple-is-doing-kettlebell-twist-in-a-gym-togehter.jpg?s=612x612&w=0&k=20&c=lfs1V1d0YB33tn72myi6FElJnylPJYYM9lW5ZhlnYqY="
-                alt="Our Gym Design"
+                alt="Gym design and setup by Zain Gym Technicians"
                 className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500"
               />
             </div>

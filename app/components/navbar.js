@@ -1,10 +1,13 @@
 "use client";
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   // Scroll detect karne ke liye useEffect
   useEffect(() => {
@@ -29,12 +32,12 @@ export default function Navbar() {
   }, [isOpen]);
 
   const navItems = [
-    { name: 'Home', href: '#home' },
-    { name: 'About Us', href: '#about' },
-    { name: 'Services', href: '#services' },
-    { name: 'Projects', href: '#projects' },
-    { name: 'Team', href: '#team' },
-    { name: 'Contact', href: '#contact' },
+    { name: 'Home', href: '/#home', isActive: pathname === '/' },
+    { name: 'About Us', href: '/#about', isActive: false },
+    { name: 'Services', href: '/#services', isActive: false },
+    { name: 'Projects', href: '/#projects', isActive: false },
+    { name: 'Team', href: '/#team', isActive: false },
+    { name: 'Contact', href: '/contact', isActive: pathname === '/contact' },
   ];
 
   return (
@@ -46,34 +49,36 @@ export default function Navbar() {
       <div className="flex justify-between items-center w-full mx-auto">
         
         {/* Logo Text */}
-        <div className="flex flex-col">
+        <Link href="/" className="flex flex-col">
           <h1 className="text-white text-lg md:text-2xl font-black tracking-tighter leading-none">
             ZAIN GYM <span className="text-gym-green">TECHNICIANS</span>
           </h1>
           <span className="text-[8px] md:text-[10px] text-gray-300 tracking-[2px] md:tracking-[3px] uppercase">
             Complete Fitness Solutions
           </span>
-        </div>
+        </Link>
 
         {/* Desktop Nav Links */}
         <ul className="hidden lg:flex gap-10 text-white font-medium text-sm tracking-wide">
           {navItems.map((item) => (
             <li key={item.name}>
-              <a 
+              <Link
                 href={item.href} 
-                className="hover:text-gym-green cursor-pointer transition-colors duration-300"
+                className={`cursor-pointer transition-colors duration-300 ${
+                  item.isActive ? "text-gym-green" : "hover:text-gym-green"
+                }`}
               >
                 {item.name}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
 
         {/* Right Side: CTA Button */}
         <div className="flex items-center gap-4">
-          <button className="btn-hover-fill btn-fill-white-shift hidden sm:block bg-gym-green text-black font-bold px-8 py-3 rounded-md text-xs md:text-sm uppercase active:scale-[0.98]">
+          <Link href="/contact" className="btn-hover-fill btn-fill-white-shift hidden sm:block bg-gym-green text-black font-bold px-8 py-3 rounded-md text-xs md:text-sm uppercase active:scale-[0.98]">
             Get a Quote
-          </button>
+          </Link>
 
           {/* Mobile Menu Button */}
           <button 
@@ -125,13 +130,13 @@ export default function Navbar() {
                 }`}
                 style={{ transitionDelay: isOpen ? `${index * 45}ms` : "0ms" }}
               >
-                <a 
+                <Link
                   href={item.href} 
                   className="block rounded-xl border border-transparent px-4 py-3 tracking-wide transition-all duration-300 ease-in-out hover:border-white/10 hover:bg-white/5 hover:text-gym-green" 
                   onClick={() => setIsOpen(false)}
                 >
                   {item.name}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -142,9 +147,13 @@ export default function Navbar() {
             }`}
             style={{ transitionDelay: isOpen ? `${navItems.length * 45}ms` : "0ms" }}
           >
-            <button className="btn-hover-fill btn-fill-white-shift w-full rounded-xl bg-gym-green px-6 py-3 text-sm font-bold uppercase text-black active:scale-[0.98]">
+            <Link
+              href="/contact"
+              className="btn-hover-fill btn-fill-white-shift block w-full rounded-xl bg-gym-green px-6 py-3 text-center text-sm font-bold uppercase text-black active:scale-[0.98]"
+              onClick={() => setIsOpen(false)}
+            >
               Get a Quote
-            </button>
+            </Link>
           </div>
         </div>
       </div>

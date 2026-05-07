@@ -5,12 +5,12 @@ export default function Services() {
   const serviceList = [
     {
       title: "Gym Design & Planning",
-      desc: "Innovative layouts and 3D designs customized to your space, goals and budget.",
+      desc: "Innovative layouts and 3D designs customized to your space, goals, and budget.",
       icon: <Layout className="w-10 h-10 text-gym-green" />,
     },
     {
-      title: "Equipment Supply",
-      desc: "High-quality cardio, strength and functional training equipment.",
+      title: "Fitness Equipment Supply",
+      desc: "High-quality cardio, strength, and functional training equipment for commercial and private gyms.",
       icon: <Dumbbell className="w-10 h-10 text-gym-green" />,
     },
     {
@@ -32,7 +32,7 @@ export default function Services() {
           Our Services
         </h3>
         <h2 className="text-white text-3xl md:text-5xl font-black">
-          Complete Gym Solutions
+          Complete Gym Design and Setup Solutions
         </h2>
       </div>
 

@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Hero() {
   return (
     <section id="home" className="relative h-screen w-full flex items-center justify-center overflow-hidden">
@@ -17,32 +19,33 @@ export default function Hero() {
         
         {/* Sub-heading: Small on mobile, Medium on Desktop */}
         <h3 className="text-gym-green font-bold tracking-[3px] md:tracking-[5px] uppercase mb-4 text-sm md:text-lg">
-          We Build
+          Gym Designers and Builders
         </h3>
         
         {/* Main Heading: Scaled from 4xl to 8xl */}
         <h1 className="text-white text-4xl sm:text-6xl md:text-8xl font-black uppercase leading-[1.1] mb-2 tracking-tighter">
-          Complete Gyms
+          Complete Gym Setup
         </h1>
         
         {/* Secondary Heading: Scaled from lg to 4xl */}
         <h2 className="text-gym-green text-lg sm:text-2xl md:text-4xl font-bold uppercase mb-6 tracking-wide">
-          From Design to Management
+          From Design to Equipment Supply
         </h2>
 
         {/* Description: Hidden or smaller on very small screens to keep UI clean */}
         <p className="text-gray-200 text-sm md:text-xl font-light mb-10 max-w-2xl mx-auto leading-relaxed">
-          Equipment, Trainers & Full Setup , All in One Place
+          Gym setup services, fitness equipment supply, trainers, and full
+          support all in one place.
         </p>
 
         {/* Buttons: Stacked on Mobile, Row on Desktop */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <button className="btn-hover-fill btn-fill-white-shift bg-gym-green text-black font-extrabold px-10 py-4 rounded-md w-full sm:w-56 text-sm md:text-base tracking-widest active:scale-[0.98]">
+          <Link href="/contact" className="btn-hover-fill btn-fill-white-shift bg-gym-green text-center text-black font-extrabold px-10 py-4 rounded-md w-full sm:w-56 text-sm md:text-base tracking-widest active:scale-[0.98]">
             GET STARTED
-          </button>
-          <button className="btn-hover-outline  btn-outline-white-fill border-2 border-white text-white font-extrabold px-10 py-4 rounded-md w-full sm:w-56 text-sm md:text-base tracking-widest active:scale-[0.98]">
+          </Link>
+          <Link href="/contact" className="btn-hover-outline btn-outline-white-fill border-2 border-white text-center text-white font-extrabold px-10 py-4 rounded-md w-full sm:w-56 text-sm md:text-base tracking-widest active:scale-[0.98]">
             CONTACT US
-          </button>
+          </Link>
         </div>
       </div>
 
