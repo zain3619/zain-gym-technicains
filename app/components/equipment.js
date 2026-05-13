@@ -4,24 +4,17 @@ import { useState } from 'react';
 const categories = ['All', 'Cardio Machines', 'Strength Equipment', 'Free Weights', 'Functional Training'];
 
 const equipmentData = [
-  // Cardio Machines (8 Images)
-  { id: 1, category: 'Cardio Machines', img: 'https://media.istockphoto.com/id/2156426866/photo/modern-fitness-center-with-treadmills-and-stationary-bikes.jpg?s=612x612&w=0&k=20&c=e__r9uudD7BUU6r9LAarmGfLdbMQplcn6agkJ94XysU=' },
-  { id: 2, category: 'Cardio Machines', img: 'https://myfitnessjunction.co.uk/cdn/shop/articles/cross_trainers_for_sale_e2ae2de5-ea62-4a02-88ab-194689c1049b.jpg?v=1762520316&width=1100' },
-  { id: 3, category: 'Cardio Machines', img: 'https://gymleco.com/cdn/shop/files/A7S07698-scaled.jpg?crop=region&crop_height=1710&crop_left=425&crop_top=0&crop_width=1710&v=1758784671&width=2560' },
-  { id: 4, category: 'Cardio Machines', img: 'https://www.massyarias.com/wp-content/uploads/2024/11/2-6-1024x745.jpg' },
-  { id: 5, category: 'Cardio Machines', img: 'https://img.freepik.com/free-photo/cycling-equipment-healthy-fit-fitness_1139-686.jpg' },
-  { id: 6, category: 'Cardio Machines', img: 'https://img.freepik.com/premium-photo/energetic-sportsman-is-doing-heavy-cardio-cross-fit-training-with-battle-ropes-indoor-gym-with-black-background-big-mirror_232070-11719.jpg' },
-  { id: 7, category: 'Cardio Machines', img: 'https://s.alicdn.com/@sc04/kf/Ha5ba0c6c1809484eba776efb3bdb5e3ae/Commercial-Multi-Function-Climbing-Machine-Large-Fitness-Equipment-Stair-Machine-Aerobic-Exercise-Model-ZF-9700-for-Gym-Clubs.jpg_300x300.jpg' },
-  { id: 8, category: 'Cardio Machines', img: 'https://xcelerategyms.com/wp-content/uploads/2026/03/image12.jpg' },
+  // Cardio Machines (1 Image)
+  { id: 1, category: 'Cardio Machines', img: '/equipment-strength-2.png' },
   // Strength Equipment (8 Images)
-  { id: 9, category: 'Strength Equipment', img: 'https://png.pngtree.com/thumb_back/fh260/background/20230722/pngtree-3d-rendered-gym-equipment-against-a-dark-backdrop-image_3764393.jpg' },
-  { id: 10, category: 'Strength Equipment', img: 'https://img.freepik.com/free-photo/kettlebell-dark-gym-with-dramatic-lighting_84443-83772.jpg?semt=ais_hybrid&w=740&q=80' },
-  { id: 11, category: 'Strength Equipment', img: 'https://png.pngtree.com/thumb_back/fh260/background/20230630/pngtree-dark-fitness-room-with-training-equipment-and-black-dumbbells-on-the-image_3698810.jpg' },
-  { id: 12, category: 'Strength Equipment', img: 'https://t3.ftcdn.net/jpg/01/19/59/74/360_F_119597487_SnvLBdheEGOxu05rMQ5tCzo250cRrTz9.jpg' },
-  { id: 13, category: 'Strength Equipment', img: 'https://img.freepik.com/free-photo/3d-gym-equipment_23-2151114150.jpg' },
-  { id: 14, category: 'Strength Equipment', img: 'https://t4.ftcdn.net/jpg/09/02/08/61/360_F_902086199_B6rJ2KebOcmJrzC7weRBb7hJiPffn9nu.jpg' },
-  { id: 15, category: 'Strength Equipment', img: 'https://img.pikbest.com/ai/illus_our/20230425/36bcd368e83c22648103db6028e98d3a.jpg!w700wp' },
-  { id: 16, category: 'Strength Equipment', img: 'https://thumbs.dreamstime.com/b/fitness-center-interior-showcasing-sport-workout-equipment-modern-gym-contemporary-crossfit-gear-274949711.jpg' },
+  { id: 9, category: 'Strength Equipment', img: '/equipment-strength-1.png' },
+  { id: 10, category: 'Strength Equipment', img: '/equipment-cardio-1.png' },
+  { id: 11, category: 'Strength Equipment', img: '/equipment-strength-3.png' },
+  { id: 12, category: 'Strength Equipment', img: '/equipment-strength-4.png' },
+  { id: 13, category: 'Strength Equipment', img: '/equipment-strength-1.png' },
+  { id: 14, category: 'Strength Equipment', img: '/equipment-strength-2.png' },
+  { id: 15, category: 'Strength Equipment', img: '/equipment-strength-3.png' },
+  { id: 16, category: 'Strength Equipment', img: '/equipment-strength-4.png' },
   // Functional Training (8 Images)
   { id: 17, category: 'Functional Training', img: 'https://img.freepik.com/premium-photo/equipment-machines-modern-gym-room-fitness-center-interior-with-equipment-bodybuilding-concept-background-crossfit-functional-training-practicing-powerlifting_771426-7072.jpg' },
   { id: 18, category: 'Functional Training', img: 'https://img.freepik.com/foto-gratis/pemandangan-ruang-gym-untuk-latihan-dan-olahraga_23-2151699520.jpg' },
@@ -84,11 +77,14 @@ export default function Equipment() {
         {/* Equipment Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-all duration-500 ease-in-out">
           {displayedItems.map((item) => (
-            <div key={item.id} className="relative group overflow-hidden rounded-lg aspect-video">
+            <div
+              key={item.id}
+              className="relative group overflow-hidden rounded-lg bg-[#0b0b0b] min-h-[280px] sm:min-h-[300px] lg:min-h-[260px]"
+            >
               <img 
                 src={item.img} 
                 alt={item.category} 
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                className="w-full h-full object-contain p-2 group-hover:scale-[1.03] transition-transform duration-500"
               />
               <div className="absolute inset-0 group-hover:bg-black/10 transition-all duration-300"></div>
             </div>
