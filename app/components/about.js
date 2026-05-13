@@ -57,7 +57,7 @@ export default function About() {
             {/* Main Image */}
             <div className="relative z-10 overflow-hidden">
               <img
-                src="https://media.istockphoto.com/id/2075354173/photo/fitness-couple-is-doing-kettlebell-twist-in-a-gym-togehter.jpg?s=612x612&w=0&k=20&c=lfs1V1d0YB33tn72myi6FElJnylPJYYM9lW5ZhlnYqY="
+                src="/about-team.png"
                 alt="Gym design and setup by Zain Gym Technicians"
                 className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500"
               />

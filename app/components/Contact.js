@@ -131,8 +131,8 @@ const projectTypes = [
 ];
 
 const budgetRanges = [
-  "Under PKR 1M",
-  "PKR 1M - 3M",
+  "Under PKR 2M",
+  "PKR 2M - 3M",
   "PKR 3M - 7M",
   "PKR 7M+",
 ];

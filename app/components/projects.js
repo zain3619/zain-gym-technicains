@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { MapPin, Maximize2 } from 'lucide-react';
 
 export default function Projects() {
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(true);
 
   const projectData = [
     {
@@ -110,7 +110,7 @@ export default function Projects() {
       </div>
 
       {/* Button Style from Screenshot */}
-      <div className="text-center mt-12">
+      <div className="mt-12 text-center lg:hidden">
         <button 
           onClick={() => setShowAll(!showAll)}
           className="btn-hover-outline btn-outline-green-fill border border-gym-green/40 text-gym-green font-bold py-2 px-8 rounded text-[10px] uppercase tracking-[0.3em] active:scale-[0.98]"
