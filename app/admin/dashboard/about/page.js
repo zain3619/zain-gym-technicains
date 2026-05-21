@@ -25,7 +25,7 @@ export default function AboutManagementPage() {
   const fetchAboutData = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/v1/sections/about");
+      const response = await fetch("/api/sections/about");
       const data = await response.json();
       if (response.ok) {
         setFormData({
@@ -86,7 +86,7 @@ export default function AboutManagementPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/v1/sections/about", {
+      const response = await fetch("/api/sections/about", {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`,

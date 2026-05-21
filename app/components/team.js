@@ -11,7 +11,7 @@ export default function Team() {
   useEffect(() => {
     const fetchTeam = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/v1/team");
+        const response = await fetch("/api/team");
         if (response.ok) {
           const resData = await response.json();
           if (Array.isArray(resData)) {

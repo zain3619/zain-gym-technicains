@@ -16,7 +16,7 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       const token = localStorage.getItem("admin_token");
       try {
-        const response = await fetch("http://localhost:5000/api/v1/auth/profile", {
+        const response = await fetch("/api/auth/profile", {
           headers: {
             "Authorization": `Bearer ${token}`
           }
@@ -72,7 +72,7 @@ export default function ProfilePage() {
     payload.append("image", selectedFile);
 
     try {
-      const response = await fetch("http://localhost:5000/api/v1/auth/profile-image", {
+      const response = await fetch("/api/auth/profile", {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`

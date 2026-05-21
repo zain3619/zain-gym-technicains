@@ -6,7 +6,8 @@ import Link from "next/link";
 import { 
   Dumbbell, LayoutDashboard, Image, Settings, Users, 
   MessageSquare, PenTool, Award, Home, FolderHeart, 
-  Sparkles, LogOut, Menu, X, ArrowLeftRight, ScrollText, ListCollapse
+  Sparkles, LogOut, Menu, X, ArrowLeftRight, ScrollText, ListCollapse,
+  Film
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -70,6 +71,7 @@ export default function DashboardLayout({ children }) {
     { name: "About Details", href: "/admin/dashboard/about", icon: FolderHeart },
     { name: "Services CRUD", href: "/admin/dashboard/services", icon: Dumbbell },
     { name: "Gallery Stream", href: "/admin/dashboard/gallery", icon: Image },
+    { name: "Video Gallery", href: "/admin/dashboard/videos", icon: Film },
     { name: "Team & Roster", href: "/admin/dashboard/team", icon: Users },
     { name: "Testimonials", href: "/admin/dashboard/testimonials", icon: MessageSquare },
     { name: "Pricing Packages", href: "/admin/dashboard/pricing", icon: Award },

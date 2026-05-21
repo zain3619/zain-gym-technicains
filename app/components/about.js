@@ -17,18 +17,18 @@ export default function About() {
   useEffect(() => {
     const fetchAbout = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/v1/sections/about");
+        const response = await fetch("/api/sections/about");
         if (response.ok) {
           const resData = await response.json();
           if (resData) {
             setData({
-              title: resData.title || "About Us",
-              heading: resData.heading || "We Build More Than Gyms \n We Build Experiences.",
+              title: "About Us",
+              heading: resData.title || "We Build More Than Gyms \n We Build Experiences.",
               description: resData.description || "From concept to completion, we deliver gym design, gym building, gym setup services, top-tier fitness equipment, and expert support. Our mission is to build powerful fitness environments that drive performance and lasting results.",
-              experienceYears: resData.experienceYears || "14+",
-              gymsSetup: resData.gymsSetup || "30+",
-              satisfactionRate: resData.satisfactionRate || "100%",
-              showcaseImage: (resData.showcaseImages && resData.showcaseImages[0]) || "/about-team.png"
+              experienceYears: resData.experienceYears ? `${resData.experienceYears}+` : "14+",
+              gymsSetup: resData.gymsBuilt ? `${resData.gymsBuilt}+` : "30+",
+              satisfactionRate: resData.clientSatisfaction || "100%",
+              showcaseImage: resData.imageUrl || "/about-team.png"
             });
           }
         }

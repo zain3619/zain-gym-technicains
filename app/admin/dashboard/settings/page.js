@@ -29,7 +29,7 @@ export default function GlobalSettingsPage() {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/v1/sections/settings");
+      const response = await fetch("/api/sections/settings");
       const data = await response.json();
       if (response.ok) {
         setFormData({
@@ -98,7 +98,7 @@ export default function GlobalSettingsPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/v1/sections/settings", {
+      const response = await fetch("/api/sections/settings", {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`,

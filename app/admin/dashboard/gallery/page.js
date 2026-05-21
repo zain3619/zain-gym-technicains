@@ -34,8 +34,8 @@ export default function GalleryManagementPage() {
     setLoading(true);
     try {
       const url = selectedCategory === "All" 
-        ? "http://localhost:5000/api/v1/gallery" 
-        : `http://localhost:5000/api/v1/gallery?category=${encodeURIComponent(selectedCategory)}`;
+        ? "/api/gallery" 
+        : `/api/gallery?category=${encodeURIComponent(selectedCategory)}`;
       const response = await fetch(url);
       const data = await response.json();
       if (response.ok) {
@@ -102,7 +102,7 @@ export default function GalleryManagementPage() {
     });
 
     try {
-      const response = await fetch("http://localhost:5000/api/v1/gallery", {
+      const response = await fetch("/api/gallery", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -132,7 +132,7 @@ export default function GalleryManagementPage() {
     
     const token = localStorage.getItem("admin_token");
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/gallery/${id}`, {
+      const response = await fetch(`/api/gallery/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -164,7 +164,7 @@ export default function GalleryManagementPage() {
     const token = localStorage.getItem("admin_token");
 
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/gallery/${editId}`, {
+      const response = await fetch(`/api/gallery/${editId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

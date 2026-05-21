@@ -30,7 +30,7 @@ export default function TestimonialsManagementPage() {
   const fetchTestimonials = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/v1/testimonials");
+      const response = await fetch("/api/testimonials");
       const data = await response.json();
       if (response.ok) {
         setTestimonials(data);
@@ -102,7 +102,7 @@ export default function TestimonialsManagementPage() {
     
     const token = localStorage.getItem("admin_token");
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/testimonials/${id}`, {
+      const response = await fetch(`/api/testimonials/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -138,8 +138,8 @@ export default function TestimonialsManagementPage() {
     }
 
     const url = editId 
-      ? `http://localhost:5000/api/v1/testimonials/${editId}` 
-      : "http://localhost:5000/api/v1/testimonials";
+      ? `/api/testimonials/${editId}` 
+      : "/api/testimonials";
     const method = editId ? "PUT" : "POST";
 
     try {

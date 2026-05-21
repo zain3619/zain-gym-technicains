@@ -45,7 +45,7 @@ export default function Services() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/v1/services");
+        const response = await fetch("/api/services");
         if (response.ok) {
           const resData = await response.json();
           if (Array.isArray(resData) && resData.length > 0) {

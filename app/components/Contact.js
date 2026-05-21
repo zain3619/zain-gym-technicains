@@ -170,7 +170,7 @@ export default function Contact() {
       setSubmitting(true);
       try {
         // 1. Post directly to our central Express MongoDB database
-        await fetch("http://localhost:5000/api/v1/messages", {
+        await fetch("/api/contact", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(values),

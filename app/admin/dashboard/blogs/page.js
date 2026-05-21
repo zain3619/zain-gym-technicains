@@ -33,7 +33,7 @@ export default function BlogCMSPage() {
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/v1/blogs?all=true");
+      const response = await fetch("/api/blogs?all=true");
       const data = await response.json();
       if (response.ok) {
         setBlogs(data.blogs || []);
@@ -128,7 +128,7 @@ export default function BlogCMSPage() {
     
     const token = localStorage.getItem("admin_token");
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/blogs/${id}`, {
+      const response = await fetch(`/api/blogs/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -170,8 +170,8 @@ export default function BlogCMSPage() {
     }
 
     const url = editId 
-      ? `http://localhost:5000/api/v1/blogs/${editId}` 
-      : "http://localhost:5000/api/v1/blogs";
+      ? `/api/blogs/${editId}` 
+      : "/api/blogs";
     const method = editId ? "PUT" : "POST";
 
     try {

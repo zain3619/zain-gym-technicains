@@ -20,7 +20,7 @@ export default function Hero() {
   useEffect(() => {
     const fetchHero = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/v1/sections/hero");
+        const response = await fetch("/api/sections/hero");
         if (response.ok) {
           const resData = await response.json();
           if (resData) {
@@ -74,13 +74,25 @@ export default function Hero() {
       id="home"
       className="relative flex min-h-screen w-full items-center justify-center overflow-hidden"
     >
-      {/* Background Image with Overlay */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ 
-          backgroundImage: `url('${data.backgroundImage}')`,
-        }}
-      >
+      {/* Background Image or Video with Overlay */}
+      <div className="absolute inset-0 overflow-hidden">
+        {data.backgroundImage && (data.backgroundImage.endsWith(".mp4") || data.backgroundImage.endsWith(".webm") || data.backgroundImage.includes("video/upload")) ? (
+          <video
+            src={data.backgroundImage}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ 
+              backgroundImage: `url('${data.backgroundImage}')`,
+            }}
+          />
+        )}
         {/* Dark Tint Overlay */}
         <div className="absolute inset-0 bg-black/75"></div>
       </div>

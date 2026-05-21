@@ -26,7 +26,7 @@ export default function HeroManagementPage() {
   const fetchHeroData = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/v1/sections/hero");
+      const response = await fetch("/api/sections/hero");
       const data = await response.json();
       if (response.ok) {
         setFormData({
@@ -64,8 +64,8 @@ export default function HeroManagementPage() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload an image file");
+      if (!file.type.startsWith("video/")) {
+        toast.error("Please upload a video file");
         return;
       }
       setSelectedFile(file);
@@ -89,7 +89,7 @@ export default function HeroManagementPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/v1/sections/hero", {
+      const response = await fetch("/api/sections/hero", {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -211,20 +211,24 @@ export default function HeroManagementPage() {
         {/* Right Side: File Upload Preview */}
         <div className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-6 flex flex-col justify-between shadow-xl">
           <div>
-            <h3 className="text-xs font-black uppercase tracking-widest text-white mb-4 pb-2 border-b border-white/5">Background Graphic</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-white mb-4 pb-2 border-b border-white/5">Background Cinematic Video</h3>
             
-            {/* Image Preview Box */}
+            {/* Video Preview Box */}
             <div className="relative aspect-video rounded-xl bg-black border border-white/10 overflow-hidden flex items-center justify-center group mb-4">
               {previewUrl || bgImage ? (
-                <img 
+                <video 
                   src={previewUrl || bgImage} 
-                  alt="Hero Preview" 
+                  controls
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
                   className="w-full h-full object-cover"
                 />
               ) : (
                 <div className="flex flex-col items-center text-gray-500 gap-1.5 text-xs">
-                  <ImageIcon className="h-8 w-8 text-gray-600" />
-                  No background image loaded
+                  <Loader2 className="h-8 w-8 text-gray-600 animate-spin" />
+                  No background video loaded
                 </div>
               )}
             </div>
@@ -232,12 +236,12 @@ export default function HeroManagementPage() {
             {/* Drop Zone Input */}
             <label className="flex flex-col items-center justify-center border border-dashed border-white/15 hover:border-[#82cd2b]/40 rounded-xl p-5 bg-black/35 hover:bg-black/60 transition-all cursor-pointer">
               <Upload className="h-6 w-6 text-gray-400 mb-2" />
-              <span className="text-[10px] font-extrabold uppercase text-white tracking-wider">Choose New Background</span>
-              <span className="text-[9px] text-gray-500 mt-1">Recommended: 1920x1080px (under 5MB)</span>
+              <span className="text-[10px] font-extrabold uppercase text-white tracking-wider">Choose Cinematic Background Video</span>
+              <span className="text-[9px] text-gray-500 mt-1">Recommended: MP4 format (under 25MB)</span>
               <input
                 type="file"
                 className="hidden"
-                accept="image/*"
+                accept="video/*"
                 onChange={handleFileChange}
               />
             </label>

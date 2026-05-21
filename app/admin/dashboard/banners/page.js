@@ -30,7 +30,7 @@ export default function BannersManagementPage() {
   const fetchBanners = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/v1/banners");
+      const response = await fetch("/api/banners");
       const data = await response.json();
       if (response.ok) {
         setBanners(data);
@@ -102,7 +102,7 @@ export default function BannersManagementPage() {
     
     const token = localStorage.getItem("admin_token");
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/banners/${id}`, {
+      const response = await fetch(`/api/banners/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -138,8 +138,8 @@ export default function BannersManagementPage() {
     }
 
     const url = editId 
-      ? `http://localhost:5000/api/v1/banners/${editId}` 
-      : "http://localhost:5000/api/v1/banners";
+      ? `/api/banners/${editId}` 
+      : "/api/banners";
     const method = editId ? "PUT" : "POST";
 
     try {

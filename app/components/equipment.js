@@ -11,7 +11,7 @@ export default function Equipment() {
   useEffect(() => {
     const fetchGallery = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/v1/gallery");
+        const response = await fetch("/api/gallery");
         if (response.ok) {
           const resData = await response.json();
           if (Array.isArray(resData)) {

@@ -6,6 +6,7 @@ import Equipment from "./components/equipment";
 import Process from "./components/process";
 import Projects from "./components/projects";
 import Team from "./components/team";
+import VideoSection from "./components/videos/VideoSection";
 import Testimonials from "./components/testimonials";
 import Footer from "./components/Footer";
 import {
@@ -86,6 +87,7 @@ export default function Home() {
       <Process />
       <Projects />
       <Team />
+      <VideoSection />
       <Testimonials />
       <Footer />
     </main>

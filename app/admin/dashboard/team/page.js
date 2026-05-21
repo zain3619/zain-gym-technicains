@@ -33,7 +33,7 @@ export default function TeamManagementPage() {
   const fetchTeam = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/v1/team");
+      const response = await fetch("/api/team");
       const data = await response.json();
       if (response.ok) {
         setTeam(data);
@@ -111,7 +111,7 @@ export default function TeamManagementPage() {
     
     const token = localStorage.getItem("admin_token");
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/team/${id}`, {
+      const response = await fetch(`/api/team/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -153,8 +153,8 @@ export default function TeamManagementPage() {
     }
 
     const url = editId 
-      ? `http://localhost:5000/api/v1/team/${editId}` 
-      : "http://localhost:5000/api/v1/team";
+      ? `/api/team/${editId}` 
+      : "/api/team";
     const method = editId ? "PUT" : "POST";
 
     try {

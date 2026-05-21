@@ -22,7 +22,7 @@ export default function MessagesInboxPage() {
     const headers = { "Authorization": `Bearer ${token}` };
 
     try {
-      const response = await fetch("http://localhost:5000/api/v1/messages", { headers });
+      const response = await fetch("/api/contact", { headers });
       const data = await response.json();
       if (response.ok) {
         setMessages(data);
@@ -66,7 +66,7 @@ export default function MessagesInboxPage() {
     const newReadState = !msg.isRead;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/messages/${msg._id}`, {
+      const response = await fetch(`/api/contact/${msg._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -94,7 +94,7 @@ export default function MessagesInboxPage() {
     
     const token = localStorage.getItem("admin_token");
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/messages/${id}`, {
+      const response = await fetch(`/api/contact/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`,

@@ -39,7 +39,7 @@ export default function ServicesManagementPage() {
   const fetchServices = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/v1/services");
+      const response = await fetch("/api/services");
       const data = await response.json();
       if (response.ok) {
         setServices(data);
@@ -111,7 +111,7 @@ export default function ServicesManagementPage() {
     
     const token = localStorage.getItem("admin_token");
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/services/${id}`, {
+      const response = await fetch(`/api/services/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -150,8 +150,8 @@ export default function ServicesManagementPage() {
     }
 
     const url = editId 
-      ? `http://localhost:5000/api/v1/services/${editId}` 
-      : "http://localhost:5000/api/v1/services";
+      ? `/api/services/${editId}` 
+      : "/api/services";
     const method = editId ? "PUT" : "POST";
 
     try {

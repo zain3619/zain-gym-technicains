@@ -41,12 +41,12 @@ export default function DashboardHomePage() {
     try {
       // Parallel fetch from our Express APIs
       const [resServices, resGallery, resTeam, resTestimonials, resBlogs, resMessages] = await Promise.all([
-        fetch("http://localhost:5000/api/v1/services").then(r => r.json()),
-        fetch("http://localhost:5000/api/v1/gallery").then(r => r.json()),
-        fetch("http://localhost:5000/api/v1/team").then(r => r.json()),
-        fetch("http://localhost:5000/api/v1/testimonials").then(r => r.json()),
-        fetch("http://localhost:5000/api/v1/blogs?all=true").then(r => r.json()),
-        fetch("http://localhost:5000/api/v1/messages", { headers }).then(r => r.json()),
+        fetch("/api/services").then(r => r.json()),
+        fetch("/api/gallery").then(r => r.json()),
+        fetch("/api/team").then(r => r.json()),
+        fetch("/api/testimonials").then(r => r.json()),
+        fetch("/api/blogs?all=true").then(r => r.json()),
+        fetch("/api/contact", { headers }).then(r => r.json()),
       ]);
 
       const servicesCount = Array.isArray(resServices) ? resServices.length : 0;

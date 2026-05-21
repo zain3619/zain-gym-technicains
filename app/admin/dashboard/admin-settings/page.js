@@ -40,7 +40,7 @@ export default function AdminSettingsPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/v1/auth/update-credentials", {
+      const response = await fetch("/api/auth/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

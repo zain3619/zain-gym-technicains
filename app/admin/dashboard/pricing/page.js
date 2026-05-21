@@ -28,7 +28,7 @@ export default function PricingManagementPage() {
   const fetchPlans = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/v1/pricing");
+      const response = await fetch("/api/pricing");
       const data = await response.json();
       if (response.ok) {
         setPlans(data);
@@ -84,7 +84,7 @@ export default function PricingManagementPage() {
     
     const token = localStorage.getItem("admin_token");
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/pricing/${id}`, {
+      const response = await fetch(`/api/pricing/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -119,8 +119,8 @@ export default function PricingManagementPage() {
     };
 
     const url = editId 
-      ? `http://localhost:5000/api/v1/pricing/${editId}` 
-      : "http://localhost:5000/api/v1/pricing";
+      ? `/api/pricing/${editId}` 
+      : "/api/pricing";
     const method = editId ? "PUT" : "POST";
 
     try {
