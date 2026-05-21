@@ -1,43 +1,66 @@
 "use client";
-import { useState } from 'react';
 
-const categories = ['All', 'Cardio Machines', 'Strength Equipment', 'Free Weights', 'Functional Training'];
-
-const equipmentData = [
-  // Cardio Machines (1 Image)
-  { id: 1, category: 'Cardio Machines', img: '/equipment-strength-2.png' },
-  // Strength Equipment (8 Images)
-  { id: 9, category: 'Strength Equipment', img: '/equipment-strength-1.png' },
-  { id: 10, category: 'Strength Equipment', img: '/equipment-cardio-1.png' },
-  { id: 11, category: 'Strength Equipment', img: '/equipment-strength-3.png' },
-  { id: 12, category: 'Strength Equipment', img: '/equipment-strength-4.png' },
-  { id: 13, category: 'Strength Equipment', img: '/equipment-strength-1.png' },
-  { id: 14, category: 'Strength Equipment', img: '/equipment-strength-2.png' },
-  { id: 15, category: 'Strength Equipment', img: '/equipment-strength-3.png' },
-  { id: 16, category: 'Strength Equipment', img: '/equipment-strength-4.png' },
-  // Functional Training (8 Images)
-  { id: 17, category: 'Functional Training', img: 'https://img.freepik.com/premium-photo/equipment-machines-modern-gym-room-fitness-center-interior-with-equipment-bodybuilding-concept-background-crossfit-functional-training-practicing-powerlifting_771426-7072.jpg' },
-  { id: 18, category: 'Functional Training', img: 'https://img.freepik.com/foto-gratis/pemandangan-ruang-gym-untuk-latihan-dan-olahraga_23-2151699520.jpg' },
-  { id: 19, category: 'Functional Training', img: 'https://img.freepik.com/premium-photo/sci-fi-gym-room_783884-2823.jpg' },
-  { id: 20, category: 'Functional Training', img: 'https://png.pngtree.com/thumb_back/fh260/background/20241219/pngtree-a-professional-fitness-center-with-diverse-range-of-exercise-machines-and-image_16822984.jpg' },
-  { id: 21, category: 'Functional Training', img: 'https://img.freepik.com/premium-photo/modern-fitness-studio-with-gym-equipment-mirrors-bright-lighting-open-space-copy-space_127957-5510.jpg' },
-  { id: 22, category: 'Functional Training', img: 'https://img.freepik.com/premium-photo/sleek-dark-wood-gym-exudes-luxury-ai-generation_724548-27372.jpg' },
-  { id: 23, category: 'Functional Training', img: 'https://static.vecteezy.com/system/resources/thumbnails/037/228/850/small_2x/ai-generated-exercise-machines-in-a-gym-free-photo.jpg' },
-  { id: 24, category: 'Functional Training', img: 'https://img.freepik.com/premium-photo/luxury-home-gym-featuring-state-art-equipment-including-treadmills-weight-machines-free-weights-all-set-elegant-wooden-interior-with-large-windows_908344-62032.jpg' },
-  // Free Weights (8 Images)
-  { id: 25, category: 'Free Weights', img: 'https://png.pngtree.com/thumb_back/fh260/background/20230525/pngtree-two-gold-iron-dumbbells-against-a-black-backdrop-image_2623138.jpg' },
-  { id: 26, category: 'Free Weights', img: 'https://png.pngtree.com/background/20230618/original/pngtree-sleek-3d-black-dumbbells-for-professional-fitness-and-bodybuilding-on-a-picture-image_3755202.jpg' },
-  { id: 27, category: 'Free Weights', img: 'https://png.pngtree.com/thumb_back/fh260/background/20230525/pngtree-video-footage-is-for-a-gold-dumbbells-isolated-on-black-image_2623139.jpg' },
-  { id: 28, category: 'Free Weights', img: 'https://png.pngtree.com/thumb_back/fh260/background/20230523/pngtree-yellow-dumbbells-on-the-black-image_2604939.jpg' },
-  { id: 29, category: 'Free Weights', img: 'https://png.pngtree.com/thumb_back/fh260/background/20231004/pngtree-3d-render-a-premium-gold-dumbbell-for-fitness-and-bodybuilding-image_13513904.png' },
-  { id: 30, category: 'Free Weights', img: 'https://png.pngtree.com/thumb_back/fh260/background/20231007/pngtree-dual-gleaming-iron-dumbbells-in-isolation-captivating-3d-render-image_13572827.png' },
-  { id: 31, category: 'Free Weights', img: 'https://png.pngtree.com/background/20250715/original/pngtree-gym-metal-texture-dumbbell-national-fitness-day-background-picture-image_15157186.jpg' },
-  { id: 32, category: 'Free Weights', img: 'https://png.pngtree.com/background/20230526/original/pngtree-three-gold-dumbbells-are-placed-side-by-side-on-a-black-picture-image_2742093.jpg' },
-];
+import React, { useState, useEffect } from 'react';
 
 export default function Equipment() {
+  const [loading, setLoading] = useState(true);
+  const [equipmentData, setEquipmentData] = useState([]);
   const [activeTab, setActiveTab] = useState('All');
   const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    const fetchGallery = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/v1/gallery");
+        if (response.ok) {
+          const resData = await response.json();
+          if (Array.isArray(resData)) {
+            setEquipmentData(resData.map((item, idx) => ({
+              id: item._id || idx,
+              category: item.category || 'Strength Equipment',
+              img: item.imageUrl
+            })));
+          }
+        }
+      } catch (error) {
+        console.log("Failed to fetch equipment data.");
+      } finally {
+        setTimeout(() => setLoading(false), 500);
+      }
+    };
+    fetchGallery();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="bg-black py-26 px-6 md:px-12 lg:px-24">
+        <div className="max-w-7xl mx-auto text-center mb-12 flex flex-col items-center">
+          <div className="h-6 w-32 rounded bg-neutral-900/80 animate-pulse border border-white/5 mb-4" />
+          <div className="h-10 w-full max-w-[500px] rounded bg-neutral-900/80 animate-pulse border border-white/5 mb-12" />
+          {/* Tab buttons skeleton */}
+          <div className="flex gap-3 mb-12 overflow-x-auto w-full max-w-[600px] justify-center">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-10 w-28 rounded-full bg-neutral-900/80 animate-pulse border border-white/5 flex-shrink-0" />
+            ))}
+          </div>
+          {/* Image grid skeleton */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="rounded-lg bg-neutral-900/80 animate-pulse border border-white/5 h-[260px] w-full" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // If no equipment data exists from admin, do not render the section
+  if (equipmentData.length === 0) {
+    return null;
+  }
+
+  // Dynamically resolve only the active categories from the database items
+  const activeCategories = ['All', ...Array.from(new Set(equipmentData.map(item => item.category)))];
 
   // Filtering Logic
   const filteredItems =
@@ -45,34 +68,34 @@ export default function Equipment() {
       ? equipmentData
       : equipmentData.filter((item) => item.category === activeTab);
 
-  // Initial 8 items dikhane ke liye
+  // Initial 8 items
   const displayedItems = showAll ? filteredItems : filteredItems.slice(0, 8);
 
   return (
-    <section  className="bg-black py-26 px-6 md:px-12 lg:px-24 scroll-mt-24">
+    <section className="bg-black py-26 px-6 md:px-12 lg:px-24 scroll-mt-24">
       <div className="max-w-7xl mx-auto text-center mb-12">
         <h3 className="text-gym-green font-bold uppercase tracking-widest text-lg mb-4">Our Equipment</h3>
         <h2 className="text-white text-3xl md:text-5xl font-black mb-12">Premium Equipment for Every Need</h2>
         
         {/* Tabs Section */}
         <div className="relative mb-12">
-  {/* Mobile: Horizontal scrollable row | Desktop: Centered flex wrap */}
-  <div className="flex overflow-x-auto no-scrollbar scroll-smooth md:flex-wrap md:justify-center gap-3 md:gap-6 pb-4 md:pb-0 px-2">
-    {categories.map((tab) => (
-      <button
-        key={tab}
-        onClick={() => { setActiveTab(tab); setShowAll(false); }}
-        className={`btn-hover-tab whitespace-nowrap text-xs md:text-sm lg:text-base font-bold px-4 py-2 rounded-full border-2 flex-shrink-0 ${
-          activeTab === tab 
-          ? 'bg-gym-green border-gym-green text-black scale-105 shadow-[0_0_15px_rgba(151,255,2,0.3)]' 
-          : 'btn-tab-hover border-white/10 text-gray-500'
-        }`}
-      >
-        {tab}
-      </button>
-    ))}
-  </div>
-  </div>
+          {/* Mobile: Horizontal scrollable row | Desktop: Centered flex wrap */}
+          <div className="flex overflow-x-auto no-scrollbar scroll-smooth md:flex-wrap md:justify-center gap-3 md:gap-6 pb-4 md:pb-0 px-2">
+            {activeCategories.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => { setActiveTab(tab); setShowAll(false); }}
+                className={`btn-hover-tab whitespace-nowrap text-xs md:text-sm lg:text-base font-bold px-4 py-2 rounded-full border-2 flex-shrink-0 cursor-pointer ${
+                  activeTab === tab 
+                  ? 'bg-gym-green border-gym-green text-black scale-105 shadow-[0_0_15px_rgba(151,255,2,0.3)]' 
+                  : 'btn-tab-hover border-white/10 text-gray-500 hover:text-white'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Equipment Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-all duration-500 ease-in-out">
@@ -96,7 +119,7 @@ export default function Equipment() {
           <div className="mt-12">
             <button 
               onClick={() => setShowAll(!showAll)}
-              className="btn-hover-outline btn-outline-green-fill border border-gym-green text-gym-green font-bold py-3 px-10 rounded-md uppercase tracking-widest text-sm active:scale-[0.98]"
+              className="btn-hover-outline btn-outline-green-fill border border-gym-green text-gym-green font-bold py-3 px-10 rounded-md uppercase tracking-widest text-sm active:scale-[0.98] cursor-pointer"
             >
               {showAll ? 'Show Less' : 'View All Equipment'}
             </button>

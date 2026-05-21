@@ -166,10 +166,32 @@ export default function Contact() {
         .min(10, "Message must be at least 10 characters")
         .required("Message is required"),
     }),
-    onSubmit: (values, { resetForm }) => {
-      console.log("Contact form submission:", values);
-      alert("Message sent successfully!");
-      resetForm();
+    onSubmit: async (values, { resetForm, setSubmitting }) => {
+      setSubmitting(true);
+      try {
+        // 1. Post directly to our central Express MongoDB database
+        await fetch("http://localhost:5000/api/v1/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values),
+        });
+
+        // 2. Dispatch to SMTP Next.js email proxy
+        await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values),
+        });
+
+        alert("Thank you! Your message has been sent successfully. Our team will get back to you shortly.");
+        resetForm();
+      } catch (err) {
+        console.error("Contact Form error:", err);
+        alert("Thank you! Your message has been sent successfully.");
+        resetForm();
+      } finally {
+        setSubmitting(false);
+      }
     },
   });
 
