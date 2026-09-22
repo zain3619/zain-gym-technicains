@@ -18,8 +18,10 @@ export async function GET(req) {
     const videos = await Video.find(filter).sort({ sortOrder: 1, createdAt: -1 });
     return NextResponse.json(videos);
   } catch (error) {
-    console.error("Video GET Error:", error);
-    return NextResponse.json({ message: "Failed to fetch videos", error: error.message }, { status: 500 });
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[videos] GET skipped — database offline");
+    }
+    return NextResponse.json([], { status: 200 });
   }
 }
 

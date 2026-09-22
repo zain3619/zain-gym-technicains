@@ -1,131 +1,150 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from "react";
+import MediaImage from "./ui/MediaImage";
+import StackPanel from "./ui/StackPanel";
+
+/** Original gallery images from admin / Cloudinary (same as before redesign) */
+const ORIGINAL_GALLERY = [
+  {
+    id: "g1",
+    title: "Strength Equipment",
+    category: "Strength Equipment",
+    img: "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779360009/gallery/mcxityh1iqj8gkdchvw4.png",
+  },
+  {
+    id: "g2",
+    title: "Strength Equipment",
+    category: "Strength Equipment",
+    img: "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779360007/gallery/okdpawgvpsnkqrufw43s.png",
+  },
+  {
+    id: "g3",
+    title: "Strength Equipment",
+    category: "Strength Equipment",
+    img: "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779360005/gallery/l9ej6cjl9l8rnsyrunop.png",
+  },
+  {
+    id: "g4",
+    title: "Strength Equipment",
+    category: "Strength Equipment",
+    img: "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779360004/gallery/meinfrgribgpcakle1mb.png",
+  },
+  {
+    id: "g5",
+    title: "Cardio Machines",
+    category: "Cardio Machines",
+    img: "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779359961/gallery/gzsbw6kigoqjlfzastne.png",
+  },
+  {
+    id: "g6",
+    title: "Strength Equipment",
+    category: "Strength Equipment",
+    img: "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779359778/gallery/jehxj6cfosh4majiigpw.png",
+  },
+];
+
+const EQUIP_BASE_Z = 12;
+
+function cleanGalleryTitle(title, category) {
+  const raw = String(title || "").trim();
+  const cat = String(category || "Equipment").trim();
+  if (!raw || /chatgpt/i.test(raw) || /^image\s+/i.test(raw)) return cat;
+  return raw;
+}
 
 export default function Equipment() {
-  const [loading, setLoading] = useState(true);
-  const [equipmentData, setEquipmentData] = useState([]);
-  const [activeTab, setActiveTab] = useState('All');
-  const [showAll, setShowAll] = useState(false);
+  const [equipmentData, setEquipmentData] = useState(ORIGINAL_GALLERY);
 
   useEffect(() => {
     const fetchGallery = async () => {
       try {
         const response = await fetch("/api/gallery");
-        if (response.ok) {
-          const resData = await response.json();
-          if (Array.isArray(resData)) {
-            setEquipmentData(resData.map((item, idx) => ({
-              id: item._id || idx,
-              category: item.category || 'Strength Equipment',
-              img: item.imageUrl
-            })));
-          }
+        if (!response.ok) return;
+        const resData = await response.json();
+        if (Array.isArray(resData) && resData.length > 0) {
+          setEquipmentData(
+            resData.map((item, idx) => {
+              const category = item.category || "Strength Equipment";
+              return {
+                id: item._id || idx,
+                title: cleanGalleryTitle(item.title, category),
+                category,
+                // Always prefer admin/Cloudinary URL — never swap in local PNGs
+                img: item.imageUrl || ORIGINAL_GALLERY[idx % ORIGINAL_GALLERY.length].img,
+              };
+            })
+          );
         }
-      } catch (error) {
-        console.log("Failed to fetch equipment data.");
-      } finally {
-        setTimeout(() => setLoading(false), 500);
+      } catch {
+        // keep original gallery seed
       }
     };
     fetchGallery();
   }, []);
 
-  if (loading) {
-    return (
-      <section className="bg-black py-26 px-6 md:px-12 lg:px-24">
-        <div className="max-w-7xl mx-auto text-center mb-12 flex flex-col items-center">
-          <div className="h-6 w-32 rounded bg-neutral-900/80 animate-pulse border border-white/5 mb-4" />
-          <div className="h-10 w-full max-w-[500px] rounded bg-neutral-900/80 animate-pulse border border-white/5 mb-12" />
-          {/* Tab buttons skeleton */}
-          <div className="flex gap-3 mb-12 overflow-x-auto w-full max-w-[600px] justify-center">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-10 w-28 rounded-full bg-neutral-900/80 animate-pulse border border-white/5 flex-shrink-0" />
-            ))}
-          </div>
-          {/* Image grid skeleton */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="rounded-lg bg-neutral-900/80 animate-pulse border border-white/5 h-[260px] w-full" />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  // If no equipment data exists from admin, do not render the section
-  if (equipmentData.length === 0) {
-    return null;
-  }
-
-  // Dynamically resolve only the active categories from the database items
-  const activeCategories = ['All', ...Array.from(new Set(equipmentData.map(item => item.category)))];
-
-  // Filtering Logic
-  const filteredItems =
-    activeTab === 'All'
-      ? equipmentData
-      : equipmentData.filter((item) => item.category === activeTab);
-
-  // Initial 8 items
-  const displayedItems = showAll ? filteredItems : filteredItems.slice(0, 8);
+  const showcase = equipmentData.slice(0, 6);
+  const introImg = showcase[0]?.img || ORIGINAL_GALLERY[0].img;
 
   return (
-    <section className="bg-black py-26 px-6 md:px-12 lg:px-24 scroll-mt-24">
-      <div className="max-w-7xl mx-auto text-center mb-12">
-        <h3 className="text-gym-green font-bold uppercase tracking-widest text-lg mb-4">Our Equipment</h3>
-        <h2 className="text-white text-3xl md:text-5xl font-black mb-12">Premium Equipment for Every Need</h2>
-        
-        {/* Tabs Section */}
-        <div className="relative mb-12">
-          {/* Mobile: Horizontal scrollable row | Desktop: Centered flex wrap */}
-          <div className="flex overflow-x-auto no-scrollbar scroll-smooth md:flex-wrap md:justify-center gap-3 md:gap-6 pb-4 md:pb-0 px-2">
-            {activeCategories.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => { setActiveTab(tab); setShowAll(false); }}
-                className={`btn-hover-tab whitespace-nowrap text-xs md:text-sm lg:text-base font-bold px-4 py-2 rounded-full border-2 flex-shrink-0 cursor-pointer ${
-                  activeTab === tab 
-                  ? 'bg-gym-green border-gym-green text-black scale-105 shadow-[0_0_15px_rgba(151,255,2,0.3)]' 
-                  : 'btn-tab-hover border-white/10 text-gray-500 hover:text-white'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
+    <>
+      <StackPanel
+        id="equipment"
+        z={EQUIP_BASE_Z}
+        className="bg-[#050505] scroll-mt-24"
+      >
+        <div className="absolute inset-0">
+          <MediaImage
+            src={introImg}
+            alt=""
+            fill
+            sizes="100vw"
+            priority
+            className="object-cover object-center"
+            fallback={ORIGINAL_GALLERY[0].img}
+          />
+          <div className="absolute inset-0 bg-[#050505]/68" />
+          <div className="cinema-overlay" />
+          <div className="grain-overlay hidden lg:block" />
         </div>
-
-        {/* Equipment Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-all duration-500 ease-in-out">
-          {displayedItems.map((item) => (
-            <div
-              key={item.id}
-              className="relative group overflow-hidden rounded-lg bg-[#0b0b0b] min-h-[280px] sm:min-h-[300px] lg:min-h-[260px]"
-            >
-              <img 
-                src={item.img} 
-                alt={item.category} 
-                className="w-full h-full object-contain p-2 group-hover:scale-[1.03] transition-transform duration-500"
-              />
-              <div className="absolute inset-0 group-hover:bg-black/10 transition-all duration-300"></div>
-            </div>
-          ))}
+        <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-center px-5 py-20 md:px-10 md:py-24 lg:px-14">
+          <p className="scene-label mb-4">03 — Equipment</p>
+          <h2 className="display-xl max-w-4xl text-[clamp(2rem,6vw,5.5rem)] text-[#F5F5F5]">
+            Premium Equipment for Every Need
+          </h2>
         </div>
+      </StackPanel>
 
-        {/* View All Button */}
-        {filteredItems.length > 8 && (
-          <div className="mt-12">
-            <button 
-              onClick={() => setShowAll(!showAll)}
-              className="btn-hover-outline btn-outline-green-fill border border-gym-green text-gym-green font-bold py-3 px-10 rounded-md uppercase tracking-widest text-sm active:scale-[0.98] cursor-pointer"
-            >
-              {showAll ? 'Show Less' : 'View All Equipment'}
-            </button>
+      {showcase.map((item, index) => (
+        <StackPanel
+          key={item.id}
+          z={EQUIP_BASE_Z + 1 + index}
+          className="bg-[#050505]"
+        >
+          <div className="absolute inset-0 bg-[#050505]">
+            <MediaImage
+              src={item.img}
+              alt={item.title}
+              fill
+              sizes="100vw"
+              priority={index < 2}
+              className="object-contain object-center"
+              fallback={ORIGINAL_GALLERY[index % ORIGINAL_GALLERY.length].img}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]/35" />
+            <div className="cinema-overlay" />
+            <div className="grain-overlay hidden lg:block" />
           </div>
-        )}
-      </div>
-    </section>
+          <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-end px-5 pb-14 pt-24 md:px-10 md:pb-24 lg:px-14">
+            <p className="scene-label mb-5">
+              Equipment / {String(index + 1).padStart(2, "0")} · {item.category}
+            </p>
+            <h3 className="font-display max-w-4xl text-[clamp(2rem,6.5vw,6rem)] font-bold uppercase leading-[0.92] tracking-[-0.04em] text-[#F5F5F5]">
+              {item.title}
+            </h3>
+          </div>
+        </StackPanel>
+      ))}
+    </>
   );
 }

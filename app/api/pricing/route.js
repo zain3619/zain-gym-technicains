@@ -9,7 +9,7 @@ export async function GET(req) {
     const plans = await PricingPlan.find().sort({ price: 1 });
     return NextResponse.json(plans);
   } catch (error) {
-    return NextResponse.json({ message: "Failed to fetch pricing plans", error: error.message }, { status: 500 });
+    return NextResponse.json([], { status: 200 });
   }
 }
 

@@ -1,5 +1,6 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Syne, Manrope } from "next/font/google";
 import "./globals.css";
+import ExperienceProviders from "./components/providers/ExperienceProviders";
 import {
   COMPANY_NAME,
   DEFAULT_DESCRIPTION,
@@ -8,14 +9,16 @@ import {
   SITE_URL,
 } from "./lib/seo";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const syne = Syne({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const manrope = Manrope({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata = {
@@ -27,6 +30,15 @@ export const metadata = {
   description: DEFAULT_DESCRIPTION,
   keywords: SEO_KEYWORDS,
   applicationName: COMPANY_NAME,
+  icons: {
+    icon: [
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: "/favicon.ico",
+  },
   alternates: {
     canonical: "/",
   },
@@ -60,8 +72,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
-        {children}
+      <body
+        className={`${syne.variable} ${manrope.variable} font-body antialiased`}
+        suppressHydrationWarning
+      >
+        <ExperienceProviders>{children}</ExperienceProviders>
       </body>
     </html>
   );

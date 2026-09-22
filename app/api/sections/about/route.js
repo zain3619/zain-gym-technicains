@@ -13,7 +13,7 @@ export async function GET(req) {
     }
     return NextResponse.json(about);
   } catch (error) {
-    return NextResponse.json({ message: "Failed to fetch about settings", error: error.message }, { status: 500 });
+    return NextResponse.json(null, { status: 200 });
   }
 }
 

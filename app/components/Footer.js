@@ -1,162 +1,194 @@
 "use client";
-import React from 'react';
-import Link from 'next/link';
-import { 
-  Phone, 
-  Mail, 
-  MapPin, 
-  MessageCircle 
-} from 'lucide-react';
+
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  BUSINESS_ADDRESS,
+  BUSINESS_CONTACT,
+  COMPANY_NAME,
+  DEFAULT_DESCRIPTION,
+} from "../lib/seo";
+
+const FALLBACK_SOCIAL = {
+  facebook: "",
+  instagram: "",
+  youtube: "",
+  linkedin: "",
+};
 
 export default function Footer() {
-  // Social Icons Data with SVG paths (Foolproof method for Turbopack)
-  const socialLinks = [
-    { 
-      name: 'Facebook', 
-      svg: <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg> 
-    },
-    { 
-      name: 'Instagram', 
-      svg: <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg> 
-    },
-    { 
-      name: 'Youtube', 
-      svg: <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 2.9 2.9 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg> 
-    },
-    { 
-      name: 'Linkedin', 
-      svg: <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg> 
-    }
+  const [settings, setSettings] = useState({
+    phone: BUSINESS_CONTACT.phone,
+    email: BUSINESS_CONTACT.email,
+    address: `${BUSINESS_ADDRESS.streetAddress}, ${BUSINESS_ADDRESS.addressLocality}, Pakistan`,
+    openingHours: "Mon - Sun: 9:00 AM - 8:00 PM (Sunday: By Appointment)",
+    footerText: `${COMPANY_NAME}. All rights reserved.`,
+    socialLinks: FALLBACK_SOCIAL,
+  });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch("/api/sections/settings");
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            setSettings((prev) => ({
+              phone: data.phone || prev.phone,
+              email: data.email || prev.email,
+              address: data.address || prev.address,
+              openingHours: data.openingHours || prev.openingHours,
+              footerText: data.footerText || prev.footerText,
+              socialLinks: {
+                ...FALLBACK_SOCIAL,
+                ...(data.socialLinks || {}),
+              },
+            }));
+          }
+        }
+      } catch {
+        // Keep SEO fallbacks
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const navLinks = [
+    { name: "Home", href: "/#home" },
+    { name: "About", href: "/#about" },
+    { name: "Services", href: "/#services" },
+    { name: "Projects", href: "/#projects" },
+    { name: "Team", href: "/#team" },
+    { name: "Contact", href: "/contact" },
   ];
 
+  const socialEntries = [
+    { key: "facebook", label: "Facebook" },
+    { key: "instagram", label: "Instagram" },
+    { key: "youtube", label: "Youtube" },
+    { key: "linkedin", label: "Linkedin" },
+  ].filter(({ key }) => settings.socialLinks?.[key]);
+
   return (
-    <footer className="bg-[#050505] text-white pt-20 pb-10 px-6 md:px-12 lg:px-24 border-t border-white/5">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-        
-        {/* Column 1: Logo & About */}
-        <div className="space-y-6">
-          <div className="flex flex-col">
-            <h2 className="text-2xl md:text-3xl font-black italic tracking-tighter leading-none uppercase">
-              Zain Gym <span className="text-[#97FF02]">Technicians</span>
-            </h2>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-gray-400 mt-1 font-bold">
+    <footer className="relative z-[80] overflow-hidden border-t border-white/8 bg-[#050505] text-[#F5F5F5]">
+      <div className="grain-overlay opacity-[0.05]" />
+
+      <div className="relative z-10 mx-auto max-w-[1600px] px-5 pb-10 pt-24 md:px-10 md:pt-32 lg:px-14">
+        <p className="scene-label mb-6">Final Scene</p>
+        <h2 className="display-xl max-w-5xl text-[clamp(3rem,10vw,8rem)] text-[#F5F5F5]">
+          Let&apos;s
+          <br />
+          Get
+          <br />
+          Moving.
+        </h2>
+
+        <p className="mt-8 max-w-xl text-sm leading-relaxed text-[#A0A0A0] md:text-base">
+          {DEFAULT_DESCRIPTION}
+        </p>
+
+        <div className="mt-10 flex flex-wrap gap-4">
+          <Link href="/contact" className="btn-silver-fill" data-cursor="CONTACT">
+            Start a Project
+          </Link>
+          <a
+            href={`tel:${settings.phone.replace(/\s+/g, "")}`}
+            className="btn-silver"
+            data-cursor="CALL"
+          >
+            {settings.phone}
+          </a>
+        </div>
+
+        <div className="mt-24 grid gap-12 border-t border-white/8 pt-14 md:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <p className="font-display text-2xl font-bold uppercase tracking-[-0.03em]">
+              {COMPANY_NAME}
+            </p>
+            <p className="mt-3 text-[10px] uppercase tracking-[0.28em] text-[#A0A0A0]">
               Complete Fitness Solutions
             </p>
           </div>
-          <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-            We provide end-to-end gym solutions including gym design, gym setup services, fitness equipment supply, trainers, and support.
-          </p>
-          
-          <div className="flex gap-4">
-            {socialLinks.map((social) => (
-              <button 
-                key={social.name} 
-                className="bg-white/5 p-2 rounded-full hover:bg-[#97FF02] hover:text-black active:scale-90 transition-all duration-300"
-                aria-label={social.name}
-              >
-                {social.svg}
-              </button>
-            ))}
+
+          <div>
+            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#D9D9D9]">
+              Navigate
+            </p>
+            <ul className="space-y-3">
+              {navLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-[#A0A0A0] transition-colors hover:text-[#F5F5F5]"
+                    data-cursor="OPEN"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#D9D9D9]">
+              Contact
+            </p>
+            <ul className="space-y-4 text-sm text-[#A0A0A0]">
+              <li>
+                <a
+                  href={`tel:${settings.phone.replace(/\s+/g, "")}`}
+                  className="transition-colors hover:text-[#F5F5F5]"
+                >
+                  {settings.phone}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={`mailto:${settings.email}`}
+                  className="transition-colors hover:text-[#F5F5F5]"
+                >
+                  {settings.email}
+                </a>
+              </li>
+              <li className="max-w-xs leading-relaxed">{settings.address}</li>
+              <li>{settings.openingHours}</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#D9D9D9]">
+              Social
+            </p>
+            {socialEntries.length > 0 ? (
+              <ul className="space-y-3">
+                {socialEntries.map(({ key, label }) => (
+                  <li key={key}>
+                    <a
+                      href={settings.socialLinks[key]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-[#A0A0A0] transition-colors hover:text-[#F5F5F5]"
+                      data-cursor="OPEN"
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-[#A0A0A0]">
+                Connect with us via phone or email.
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Column 2: Quick Links */}
-        <div>
-          <h4 className="text-lg font-bold mb-6">Quick Links</h4>
-          <ul className="space-y-4 text-gray-400 text-sm">
-            <li>
-              <Link href="/#home" className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link href="/#about" className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
-                About Us
-              </Link>
-            </li>
-            <li>
-              <Link href="/#services" className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
-                Services
-              </Link>
-            </li>
-            <li>
-              <Link href="/#projects" className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
-                Projects
-              </Link>
-            </li>
-            <li>
-              <Link href="/contact" className="hover:text-[#97FF02] active:text-[#97FF02] transition-colors text-left">
-                Contact
-              </Link>
-            </li>
-          </ul>
+        <div className="mt-16 flex flex-col gap-3 border-t border-white/8 pt-8 text-[11px] uppercase tracking-[0.18em] text-[#A0A0A0] md:flex-row md:items-center md:justify-between">
+          <p>
+            © {new Date().getFullYear()} {settings.footerText}
+          </p>
+          <p className="text-[#BDBDBD]">{COMPANY_NAME}</p>
         </div>
-
-        {/* Column 3: Our Services */}
-        <div>
-  <h4 className="text-lg font-bold mb-6">Our Services</h4>
-  <ul className="space-y-4 text-gray-400 text-sm">
-    <li>
-      <Link
-        href="/#services"
-        className="hover:text-[#97FF02] transition-colors text-left w-full active:scale-95"
-      >
-        Gym Design
-      </Link>
-    </li>
-    <li>
-      <Link
-        href="/#services"
-        className="hover:text-[#97FF02] transition-colors text-left w-full active:scale-95"
-      >
-        Equipment Supply
-      </Link>
-    </li>
-    <li>
-      <Link
-        href="/#services"
-        className="hover:text-[#97FF02] transition-colors text-left w-full active:scale-95"
-      >
-        Trainers & Staff
-      </Link>
-    </li>
-    <li>
-      <Link
-        href="/#services"
-        className="hover:text-[#97FF02] transition-colors text-left w-full active:scale-95"
-      >
-        Maintenance & Support
-      </Link>
-    </li>
-  </ul>
-</div>
-
-        {/* Column 4: Contact Info */}
-        <div>
-          <h4 className="text-lg font-bold mb-6">Contact Info</h4>
-          <ul className="space-y-5 text-gray-400 text-sm">
-            <li className="flex items-center gap-3">
-              <Phone size={18} className="text-[#97FF02]" />
-              <span>+92 323 3334777</span>
-            </li>
-            <li className="flex items-center gap-3">
-              <MessageCircle size={18} className="text-[#97FF02]" />
-              <span>WhatsApp: +92 323 3334777</span>
-            </li>
-            <li className="flex items-center gap-3">
-              <Mail size={18} className="text-[#97FF02]" />
-              <span>m.qaiser76@yahoo.com</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <MapPin size={18} className="text-[#97FF02] shrink-0" />
-              <span>120, A Block Irrigation Co-operative Housing Society Near Race Club Kot Lakhpat, Lahore, Pakistan</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto pt-8 border-t border-white/5 text-center text-gray-500 text-xs">
-        <p>&copy; {new Date().getFullYear()} Zain Gym Technicians. All rights reserved.</p>
       </div>
     </footer>
   );

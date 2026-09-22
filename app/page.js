@@ -8,6 +8,7 @@ import Projects from "./components/projects";
 import Team from "./components/team";
 import VideoSection from "./components/videos/VideoSection";
 import Testimonials from "./components/testimonials";
+import Pricing from "./components/pricing";
 import Footer from "./components/Footer";
 import {
   BUSINESS_ADDRESS,
@@ -74,7 +75,7 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <main className="relative bg-[#050505]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -89,6 +90,7 @@ export default function Home() {
       <Team />
       <VideoSection />
       <Testimonials />
+      <Pricing />
       <Footer />
     </main>
   );

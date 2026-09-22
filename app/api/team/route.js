@@ -10,7 +10,7 @@ export async function GET(req) {
     const team = await Team.find().sort({ createdAt: -1 });
     return NextResponse.json(team);
   } catch (error) {
-    return NextResponse.json({ message: "Failed to fetch team members", error: error.message }, { status: 500 });
+    return NextResponse.json([], { status: 200 });
   }
 }
 

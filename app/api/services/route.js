@@ -10,7 +10,7 @@ export async function GET(req) {
     const services = await Service.find().sort({ createdAt: -1 });
     return NextResponse.json(services);
   } catch (error) {
-    return NextResponse.json({ message: "Failed to fetch services", error: error.message }, { status: 500 });
+    return NextResponse.json([], { status: 200 });
   }
 }
 

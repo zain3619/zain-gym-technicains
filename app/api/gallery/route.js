@@ -18,7 +18,7 @@ export async function GET(req) {
     const items = await Gallery.find(query).sort({ createdAt: -1 });
     return NextResponse.json(items);
   } catch (error) {
-    return NextResponse.json({ message: "Failed to fetch gallery items", error: error.message }, { status: 500 });
+    return NextResponse.json([], { status: 200 });
   }
 }
 

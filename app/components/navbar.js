@@ -1,139 +1,137 @@
 "use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { COMPANY_NAME } from "../lib/seo";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
 
-  // Scroll detect karne ke liye useEffect
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => setScrolled(window.scrollY > 40);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
-
     return () => {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
 
   const navItems = [
-    { name: 'Home', href: '/#home', isActive: pathname === '/' },
-    { name: 'About Us', href: '/#about', isActive: false },
-    { name: 'Services', href: '/#services', isActive: false },
-    { name: 'Projects', href: '/#projects', isActive: false },
-    { name: 'Team', href: '/#team', isActive: false },
-    { name: 'Contact', href: '/contact', isActive: pathname === '/contact' },
+    { name: "Home", href: "/#home", isActive: pathname === "/" },
+    { name: "About", href: "/#about" },
+    { name: "Services", href: "/#services" },
+    { name: "Projects", href: "/#projects" },
+    { name: "Team", href: "/#team" },
+    { name: "Contact", href: "/contact", isActive: pathname === "/contact" },
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-[100] px-6 md:px-10 transition-all duration-300 ${
-      scrolled 
-        ? "bg-black/90 py-3 md:py-4 shadow-xl border-b border-white/5" 
-        : "bg-transparent py-4 md:py-8"
-    }`}>
-      <div className="flex justify-between items-center w-full mx-auto">
-        
-        {/* Logo Text */}
-        <Link href="/" className="flex flex-col">
-          <h1 className="text-white text-lg md:text-2xl font-black tracking-tighter leading-none">
-            ZAIN GYM <span className="text-gym-green">TECHNICIANS</span>
-          </h1>
-          <span className="text-[8px] md:text-[10px] text-gray-300 tracking-[2px] md:tracking-[3px] uppercase">
-            Complete Fitness Solutions
+    <header
+      className={`fixed top-0 left-0 z-[100] w-full transition-all duration-500 ${
+        scrolled
+          ? "border-b border-white/8 bg-[#050505]/72 py-3 backdrop-blur-xl md:py-4"
+          : "bg-transparent py-5 md:py-7"
+      }`}
+    >
+      <nav className="mx-auto flex w-full max-w-[1600px] items-center justify-between px-5 md:px-10 lg:px-14">
+        <Link href="/" className="group relative z-[110]" data-cursor="HOME">
+          <span className="font-display text-[15px] font-bold uppercase tracking-[0.08em] text-[#F5F5F5] md:text-lg">
+            Zain Gym
           </span>
+          <span className="mt-0.5 block text-[9px] font-medium uppercase tracking-[0.35em] text-[#A0A0A0] transition-colors group-hover:text-[#D9D9D9] md:text-[10px]">
+            Technicians
+          </span>
+          <span className="sr-only">{COMPANY_NAME}</span>
         </Link>
 
-        {/* Desktop Nav Links */}
-        <ul className="hidden lg:flex gap-10 text-white font-medium text-sm tracking-wide">
+        <ul className="hidden items-center gap-9 lg:flex">
           {navItems.map((item) => (
             <li key={item.name}>
               <Link
-                href={item.href} 
-                className={`cursor-pointer transition-colors duration-300 ${
-                  item.isActive ? "text-gym-green" : "hover:text-gym-green"
+                href={item.href}
+                data-cursor="OPEN"
+                className={`relative text-[11px] font-semibold uppercase tracking-[0.22em] transition-colors duration-300 ${
+                  item.isActive
+                    ? "text-[#D9D9D9]"
+                    : "text-[#A0A0A0] hover:text-[#F5F5F5]"
                 }`}
               >
                 {item.name}
+                <span
+                  className={`absolute -bottom-1 left-0 h-px bg-[#D9D9D9] transition-all duration-300 ${
+                    item.isActive ? "w-full" : "w-0 group-hover:w-full"
+                  }`}
+                />
               </Link>
             </li>
           ))}
         </ul>
 
-        {/* Right Side: CTA Button */}
-        <div className="flex items-center gap-4">
-          <Link href="/contact" className="btn-hover-fill btn-fill-white-shift hidden sm:block bg-gym-green text-black font-bold px-8 py-3 rounded-md text-xs md:text-sm uppercase active:scale-[0.98]">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/contact"
+            data-cursor="CONTACT"
+            className="btn-silver hidden px-5 py-2.5 text-[10px] sm:inline-flex"
+          >
             Get a Quote
           </Link>
 
-          {/* Mobile Menu Button */}
-          <button 
-            className="btn-hover-icon lg:hidden relative flex h-12 w-12 items-center justify-center rounded-full text-white hover:bg-white/10 active:scale-[0.98]"
-            onClick={() => setIsOpen(!isOpen)}
+          <button
+            type="button"
+            className="relative z-[110] flex h-11 w-11 items-center justify-center text-[#F5F5F5] lg:hidden"
+            onClick={() => setIsOpen((v) => !v)}
             aria-label={isOpen ? "Close menu" : "Open menu"}
             aria-expanded={isOpen}
+            data-cursor="MENU"
           >
-            <span className="relative h-5 w-6">
+            <span className="relative h-4 w-5">
               <span
-                className={`absolute left-0 top-0 h-0.5 w-6 origin-center rounded-full bg-current transition-all duration-300 ease-in-out ${
-                  isOpen ? "translate-y-2 rotate-45" : ""
+                className={`absolute left-0 top-0 h-px w-5 bg-current transition-all duration-300 ${
+                  isOpen ? "translate-y-[7px] rotate-45" : ""
                 }`}
               />
               <span
-                className={`absolute left-0 top-2 h-0.5 w-6 rounded-full bg-current transition-all duration-300 ease-in-out ${
+                className={`absolute left-0 top-[7px] h-px w-5 bg-current transition-opacity duration-300 ${
                   isOpen ? "opacity-0" : "opacity-100"
                 }`}
               />
               <span
-                className={`absolute left-0 top-4 h-0.5 w-6 origin-center rounded-full bg-current transition-all duration-300 ease-in-out ${
-                  isOpen ? "-translate-y-2 -rotate-45" : ""
+                className={`absolute left-0 top-[14px] h-px w-5 bg-current transition-all duration-300 ${
+                  isOpen ? "-translate-y-[7px] -rotate-45" : ""
                 }`}
               />
             </span>
           </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Mobile Menu Overlay */}
       <div
-        className={`lg:hidden fixed inset-0 top-[72px] sm:top-[80px] transition-all duration-400 ease-in-out ${
-          isOpen ? "pointer-events-auto bg-black/55 backdrop-blur-[2px]" : "pointer-events-none bg-black/0"
+        className={`fixed inset-0 z-[105] bg-[#050505] transition-all duration-500 lg:hidden ${
+          isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
-        onClick={() => setIsOpen(false)}
       >
-        <div
-          className={`ml-auto flex h-full w-full max-w-sm flex-col border-l border-white/10 bg-[#050505]/95 px-8 py-8 shadow-2xl transition-all duration-500 ease-in-out ${
-            isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-          }`}
-          onClick={(event) => event.stopPropagation()}
-        >
-          <ul className="flex flex-col gap-2 text-white text-sm font-medium">
+        <div className="flex h-full flex-col justify-between px-8 pb-12 pt-28">
+          <ul className="space-y-2">
             {navItems.map((item, index) => (
               <li
                 key={item.name}
-                className={`transition-all duration-500 ease-in-out ${
-                  isOpen ? "translate-x-0 opacity-100" : "translate-x-6 opacity-0"
+                className={`transition-all duration-500 ${
+                  isOpen ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                 }`}
-                style={{ transitionDelay: isOpen ? `${index * 45}ms` : "0ms" }}
+                style={{ transitionDelay: isOpen ? `${index * 50}ms` : "0ms" }}
               >
                 <Link
-                  href={item.href} 
-                  className="block rounded-xl border border-transparent px-4 py-3 tracking-wide transition-all duration-300 ease-in-out hover:border-white/10 hover:bg-white/5 hover:text-gym-green" 
+                  href={item.href}
                   onClick={() => setIsOpen(false)}
+                  className="font-display block border-b border-white/8 py-4 text-4xl font-bold uppercase tracking-[-0.03em] text-[#F5F5F5]"
                 >
                   {item.name}
                 </Link>
@@ -141,22 +139,15 @@ export default function Navbar() {
             ))}
           </ul>
 
-          <div
-            className={`mt-auto pt-6 transition-all duration-500 ease-in-out ${
-              isOpen ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-            }`}
-            style={{ transitionDelay: isOpen ? `${navItems.length * 45}ms` : "0ms" }}
+          <Link
+            href="/contact"
+            onClick={() => setIsOpen(false)}
+            className="btn-silver-fill w-full"
           >
-            <Link
-              href="/contact"
-              className="btn-hover-fill btn-fill-white-shift block w-full rounded-xl bg-gym-green px-6 py-3 text-center text-sm font-bold uppercase text-black active:scale-[0.98]"
-              onClick={() => setIsOpen(false)}
-            >
-              Get a Quote
-            </Link>
-          </div>
+            Get a Quote
+          </Link>
         </div>
       </div>
-    </nav>
+    </header>
   );
 }

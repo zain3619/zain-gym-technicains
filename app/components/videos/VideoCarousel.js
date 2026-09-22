@@ -90,11 +90,12 @@ export default function VideoCarousel({ videos }) {
               onClick={() => !isActive && handleDotClick(idx)}
               className={`absolute w-[260px] sm:w-[300px] md:w-[350px] lg:w-[390px] h-[340px] md:h-[420px] rounded-3xl overflow-hidden bg-[#0d0d0d] border border-white/5 shadow-2xl transition-all duration-500 ease-out cursor-pointer ${transformStyles} ${responsiveVisibility}`}
               style={{
-                boxShadow: isActive ? "0 20px 40px -10px rgba(130, 205, 43, 0.12), 0 0 30px rgba(130, 205, 43, 0.04)" : "none",
+                boxShadow: isActive
+                  ? "0 20px 40px -10px rgba(189, 189, 189, 0.12)"
+                  : "none",
               }}
             >
-              {/* Media Container: Live video for active center, static poster for side cards */}
-              <div className="relative h-2/3 w-full bg-black overflow-hidden">
+              <div className="relative h-2/3 w-full overflow-hidden bg-black">
                 {isActive ? (
                   <video
                     src={video.videoUrl}
@@ -103,59 +104,56 @@ export default function VideoCarousel({ videos }) {
                     loop
                     muted
                     playsInline
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
                   <img
                     src={video.thumbnailUrl || "/hero-gym.png"}
                     alt={video.title}
-                    className="w-full h-full object-cover opacity-60"
+                    className="h-full w-full object-cover opacity-60"
                   />
                 )}
-                
-                {/* Visual Glass gradient vignette overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-black/20 to-black/40 z-10 pointer-events-none"></div>
 
-                {/* upper tag */}
-                <div className="absolute top-4 left-4 z-20 pointer-events-none">
-                  <span className="flex items-center gap-1 text-[8px] font-black tracking-widest text-[#82cd2b] bg-[#82cd2b]/10 border border-[#82cd2b]/30 px-2.5 py-1 rounded-full uppercase">
+                <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-[#0d0d0d] via-black/20 to-black/40" />
+
+                <div className="pointer-events-none absolute left-4 top-4 z-20">
+                  <span className="flex items-center gap-1 border border-[#BDBDBD]/35 bg-white/5 px-2.5 py-1 text-[8px] font-bold uppercase tracking-widest text-[#D9D9D9]">
                     <Sparkles className="h-2.5 w-2.5" /> HD TRAINING
                   </span>
                 </div>
               </div>
 
-              {/* Video Title Block */}
-              <div className="p-4 md:p-5 flex flex-col justify-center h-1/3 border-t border-white/5 bg-[#0e0e0e]">
-                <span className="text-[8px] font-black uppercase tracking-widest text-[#82cd2b] mb-1 block">
+              <div className="flex h-1/3 flex-col justify-center border-t border-white/5 bg-[#0e0e0e] p-4 md:p-5">
+                <span className="mb-1 block text-[8px] font-bold uppercase tracking-widest text-[#BDBDBD]">
                   Active Member Session
                 </span>
-                <h4 className="text-xs md:text-sm font-black text-white group-hover:text-[#82cd2b] transition-colors line-clamp-2 leading-snug uppercase tracking-tight">
+                <h4 className="line-clamp-2 text-xs font-bold uppercase leading-snug tracking-tight text-white transition-colors md:text-sm">
                   {video.title}
                 </h4>
               </div>
-
             </div>
           );
         })}
       </div>
 
-      {/* Navigation Controls */}
-      <div className="flex items-center justify-between mt-4 max-w-sm mx-auto px-4">
+      <div className="mx-auto mt-4 flex max-w-sm items-center justify-between px-4">
         <button
           onClick={handlePrev}
-          className="p-2.5 rounded-full border border-white/10 hover:border-[#82cd2b]/40 bg-black/40 hover:bg-[#82cd2b] text-white hover:text-black transition-all cursor-pointer active:scale-95"
+          className="cursor-pointer border border-white/10 bg-black/40 p-2.5 text-white transition-all hover:border-[#D9D9D9] hover:bg-[#D9D9D9] hover:text-black active:scale-95"
+          data-cursor="DRAG"
         >
           <ChevronLeft className="h-4.5 w-4.5" />
         </button>
 
-        {/* Dots */}
-        <div className="flex gap-1.5 items-center">
+        <div className="flex items-center gap-1.5">
           {videos.map((_, dotIdx) => (
             <button
               key={dotIdx}
               onClick={() => handleDotClick(dotIdx)}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                dotIdx === activeIndex ? "w-5 bg-[#82cd2b]" : "w-1.5 bg-white/20 hover:bg-white/40"
+                dotIdx === activeIndex
+                  ? "w-5 bg-[#D9D9D9]"
+                  : "w-1.5 bg-white/20 hover:bg-white/40"
               }`}
             />
           ))}
@@ -163,7 +161,8 @@ export default function VideoCarousel({ videos }) {
 
         <button
           onClick={handleNext}
-          className="p-2.5 rounded-full border border-white/10 hover:border-[#82cd2b]/40 bg-black/40 hover:bg-[#82cd2b] text-white hover:text-black transition-all cursor-pointer active:scale-95"
+          className="cursor-pointer border border-white/10 bg-black/40 p-2.5 text-white transition-all hover:border-[#D9D9D9] hover:bg-[#D9D9D9] hover:text-black active:scale-95"
+          data-cursor="DRAG"
         >
           <ChevronRight className="h-4.5 w-4.5" />
         </button>

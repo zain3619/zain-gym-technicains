@@ -1,123 +1,128 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Layout, Dumbbell, Users, Settings } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import MediaImage from "./ui/MediaImage";
+import StackPanel from "./ui/StackPanel";
 
-const getIcon = (iconName) => {
-  const name = String(iconName || "").toLowerCase();
-  if (name.includes("layout") || name.includes("design") || name.includes("planning")) {
-    return <Layout className="h-8 w-8 text-gym-green sm:h-9 sm:w-9 lg:h-10 lg:w-10" />;
-  }
-  if (name.includes("users") || name.includes("team") || name.includes("staff") || name.includes("trainer")) {
-    return <Users className="h-8 w-8 text-gym-green sm:h-9 sm:w-9 lg:h-10 lg:w-10" />;
-  }
-  if (name.includes("settings") || name.includes("maintenance") || name.includes("support") || name.includes("wrench")) {
-    return <Settings className="h-8 w-8 text-gym-green sm:h-9 sm:w-9 lg:h-10 lg:w-10" />;
-  }
-  return <Dumbbell className="h-8 w-8 text-gym-green sm:h-9 sm:w-9 lg:h-10 lg:w-10" />;
-};
+const PROGRAM_BANNERS = [
+  "/hero-gym.png",
+  "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779360009/gallery/mcxityh1iqj8gkdchvw4.png",
+  "/about-team.png",
+  "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779359961/gallery/gzsbw6kigoqjlfzastne.png",
+];
+
+const FALLBACK_SERVICES = [
+  {
+    title: "Gym Design & Planning",
+    desc: "Innovative layouts and 3D designs customized to your space, goals, and budget.",
+    banner: PROGRAM_BANNERS[0],
+  },
+  {
+    title: "Fitness Equipment Supply",
+    desc: "High-quality cardio, strength, and functional training equipment for commercial and private gyms.",
+    banner: PROGRAM_BANNERS[1],
+  },
+  {
+    title: "Trainers & Staff",
+    desc: "Certified trainers and staff to manage and grow your gym efficiently.",
+    banner: PROGRAM_BANNERS[2],
+  },
+  {
+    title: "Maintenance & Support",
+    desc: "Ongoing maintenance and technical support to keep your gym running smoothly.",
+    banner: PROGRAM_BANNERS[3],
+  },
+];
 
 export default function Services() {
-  const [loading, setLoading] = useState(true);
-  const [services, setServices] = useState([
-    {
-      title: "Gym Design & Planning",
-      desc: "Innovative layouts and 3D designs customized to your space, goals, and budget.",
-      icon: "layout"
-    },
-    {
-      title: "Fitness Equipment Supply",
-      desc: "High-quality cardio, strength, and functional training equipment for commercial and private gyms.",
-      icon: "dumbbell"
-    },
-    {
-      title: "Trainers & Staff",
-      desc: "Certified trainers and staff to manage and grow your gym efficiently.",
-      icon: "users"
-    },
-    {
-      title: "Maintenance & Support",
-      desc: "Ongoing maintenance and technical support to keep your gym running smoothly.",
-      icon: "settings"
-    }
-  ]);
+  // Start with fallbacks so SSR + first client paint match (no hydration mismatch)
+  const [services, setServices] = useState(FALLBACK_SERVICES);
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const response = await fetch("/api/services");
-        if (response.ok) {
-          const resData = await response.json();
-          if (Array.isArray(resData) && resData.length > 0) {
-            setServices(resData.map(s => ({
+        if (!response.ok) return;
+        const resData = await response.json();
+        if (Array.isArray(resData) && resData.length > 0) {
+          setServices(
+            resData.map((s, i) => ({
               title: s.title,
               desc: s.description,
-              icon: s.icon || "dumbbell"
-            })));
-          }
+              banner:
+                s.imageUrl ||
+                PROGRAM_BANNERS[i % PROGRAM_BANNERS.length] ||
+                PROGRAM_BANNERS[0],
+            }))
+          );
         }
-      } catch (error) {
-        console.log("Failed to fetch Services, using fallback static data.");
-      } finally {
-        setTimeout(() => setLoading(false), 500);
+      } catch {
+        // keep fallbacks
       }
     };
     fetchServices();
   }, []);
 
-  if (loading) {
-    return (
-      <section className="bg-gray-950 px-6 py-20 sm:py-24 md:px-12 md:py-30 lg:px-24">
-        <div className="mx-auto max-w-7xl text-center mb-12 flex flex-col items-center">
-          <div className="h-6 w-32 rounded bg-neutral-900/80 animate-pulse border border-white/5 mb-3" />
-          <div className="h-10 w-full max-w-[500px] rounded bg-neutral-900/80 animate-pulse border border-white/5" />
-        </div>
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="flex flex-col items-center rounded-xl border border-white/5 bg-[#111111] p-6 text-center h-[260px]">
-              <div className="mb-4 h-16 w-16 rounded-lg bg-neutral-900/80 animate-pulse border border-white/5" />
-              <div className="mb-3 h-6 w-36 rounded bg-neutral-900/80 animate-pulse border border-white/5" />
-              <div className="h-16 w-full rounded bg-neutral-900/80 animate-pulse border border-white/5" />
-            </div>
-          ))}
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section
-      id="services"
-      className="bg-gray-950 px-6 py-20 sm:py-24 md:px-12 md:py-30 lg:px-24 scroll-mt-32"
-    >
-      <div className="mx-auto max-w-7xl text-center mb-12 sm:mb-14 md:mb-16">
-        <h3 className="mb-2 text-sm font-bold uppercase tracking-[0.22em] text-gym-green sm:text-base md:text-lg">
-          Our Services
-        </h3>
-        <h2 className="text-balance text-[1.9rem] font-black leading-tight text-white sm:text-4xl md:text-5xl">
-          Complete Gym Design and Setup Solutions
-        </h2>
-      </div>
+    <>
+      <StackPanel id="services" z={3} className="bg-[#080808] scroll-mt-24">
+        <div className="absolute inset-0">
+          <MediaImage
+            src="/contact-hero.png"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover object-center"
+            fallback="/hero-gym.png"
+          />
+          <div className="absolute inset-0 bg-[#080808]/72" />
+          <div className="cinema-overlay" />
+          <div className="grain-overlay hidden lg:block" />
+        </div>
+        <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-center px-5 py-20 md:px-10 md:py-24 lg:px-14">
+          <p className="scene-label mb-4">02 — Programs / Services</p>
+          <h2 className="display-xl max-w-4xl text-[clamp(2rem,6vw,5.5rem)] text-[#F5F5F5]">
+            Complete Gym Design and Setup Solutions
+          </h2>
+          <p className="mt-6 max-w-lg text-sm text-[#A0A0A0] md:mt-8 md:text-base">
+            Scroll — each program slides over the last.
+          </p>
+        </div>
+      </StackPanel>
 
-      {/* Grid: Mobile 1 column, Tablet 2, Desktop 4 */}
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {services.map((service, index) => (
-          <div 
-            key={index} 
-            className="group flex flex-col items-center rounded-xl border border-white/5 bg-[#111111] p-6 text-center transition-all duration-300 hover:border-gym-green/50 sm:p-7 lg:p-8"
-          >
-            <div className="mb-4 rounded-lg bg-black p-3 transition-transform duration-300 group-hover:scale-110 sm:mb-5 sm:p-3.5 lg:mb-6 lg:p-4">
-              {getIcon(service.icon)}
-            </div>
-            <h4 className="mb-3 text-lg font-bold text-white sm:text-[1.15rem] lg:mb-4 lg:text-xl">
+      {services.map((service, index) => (
+        <StackPanel
+          key={`${service.title}-${index}`}
+          z={4 + index}
+          className="border-t border-white/8 bg-[#0A0A0A]"
+        >
+          <div className="absolute inset-0">
+            <MediaImage
+              src={service.banner || PROGRAM_BANNERS[index % PROGRAM_BANNERS.length]}
+              alt=""
+              fill
+              sizes="100vw"
+              priority={index === 0}
+              className="object-cover object-center"
+              fallback={PROGRAM_BANNERS[0]}
+            />
+            <div className="absolute inset-0 bg-[#0A0A0A]/62" />
+            <div className="cinema-overlay" />
+            <div className="grain-overlay hidden lg:block" />
+          </div>
+          <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-end px-5 pb-14 pt-24 md:px-10 md:pb-28 lg:px-14">
+            <p className="scene-label mb-5 md:mb-6">
+              Program / {String(index + 1).padStart(2, "0")}
+            </p>
+            <h3 className="font-display max-w-4xl text-[clamp(1.85rem,6vw,5.5rem)] font-bold uppercase leading-[0.92] tracking-[-0.04em] text-[#F5F5F5]">
               {service.title}
-            </h4>
-            <p className="text-sm leading-relaxed text-gray-400 sm:text-[0.95rem]">
+            </h3>
+            <p className="mt-6 max-w-xl text-sm leading-relaxed text-[#C8C8C8] md:mt-8 md:text-base">
               {service.desc}
             </p>
           </div>
-        ))}
-      </div>
-    </section>
+        </StackPanel>
+      ))}
+    </>
   );
 }

@@ -10,7 +10,7 @@ export async function GET(req) {
     const testimonials = await Testimonial.find().sort({ createdAt: -1 });
     return NextResponse.json(testimonials);
   } catch (error) {
-    return NextResponse.json({ message: "Failed to fetch testimonials", error: error.message }, { status: 500 });
+    return NextResponse.json([], { status: 200 });
   }
 }
 
