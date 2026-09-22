@@ -127,7 +127,7 @@ export default function Equipment() {
               alt={item.title}
               fill
               sizes="100vw"
-              priority={index < 2}
+              priority={index === 0}
               className="object-contain object-center"
               fallback={ORIGINAL_GALLERY[index % ORIGINAL_GALLERY.length].img}
             />

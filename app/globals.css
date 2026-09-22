@@ -39,12 +39,6 @@ html {
   background: var(--bg-primary);
 }
 
-@media (min-width: 1024px) {
-  html {
-    scroll-snap-type: y proximity;
-  }
-}
-
 html.lenis,
 html.lenis body {
   height: auto;

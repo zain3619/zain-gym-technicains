@@ -7,8 +7,11 @@ function isRemote(src) {
   return typeof src === "string" && /^https?:\/\//i.test(src);
 }
 
-/** Cloudinary delivery transforms for faster loads */
-function optimizeSrc(src, width = 1600) {
+/**
+ * Cloudinary: serve modern format + capped width from their CDN
+ * (faster than shipping full originals through Vercel).
+ */
+function optimizeSrc(src, width = 1400) {
   if (!src || typeof src !== "string") return src;
   if (!src.includes("res.cloudinary.com")) return src;
   const marker = "/upload/";
@@ -16,14 +19,21 @@ function optimizeSrc(src, width = 1600) {
   if (at === -1) return src;
   const after = src.slice(at + marker.length);
   if (after.startsWith("f_auto") || after.includes("f_auto,")) return src;
-  return `${src.slice(0, at + marker.length)}f_auto,q_auto:good,c_limit,w_${width}/${after}`;
+  return `${src.slice(0, at + marker.length)}f_auto,q_auto:eco,c_limit,w_${width},dpr_auto/${after}`;
+}
+
+/** Prefer .webp when we generated a compressed twin for local assets */
+function preferWebp(src) {
+  if (!src || typeof src !== "string") return src;
+  if (isRemote(src)) return src;
+  if (/\.png$/i.test(src)) return src.replace(/\.png$/i, ".webp");
+  return src;
 }
 
 /**
- * Reliable media helper:
- * - local paths + remote URLs
- * - Cloudinary auto format/quality
- * - onError falls back only if a fallback src is provided
+ * Fast media helper:
+ * - Local → Next/Image (quality 75)
+ * - Cloudinary → direct CDN <img> (already compressed, avoids Next quality warnings + hydration noise)
  */
 export default function MediaImage({
   src,
@@ -36,101 +46,117 @@ export default function MediaImage({
   priority = false,
   fallback = "",
   style,
-  unoptimized = true,
-  loading,
 }) {
-  const optimized = optimizeSrc(src, fill ? 1600 : width || 1200);
-  const optimizedFallback = optimizeSrc(fallback, fill ? 1200 : width || 800);
-  const [currentSrc, setCurrentSrc] = useState(optimized || optimizedFallback);
+  const targetWidth = fill ? 1400 : width || 1200;
+  const primary = optimizeSrc(preferWebp(src), targetWidth);
+  const secondary = optimizeSrc(
+    preferWebp(fallback),
+    Math.min(targetWidth, 1000)
+  );
+
+  const [currentSrc, setCurrentSrc] = useState(primary || secondary);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     setFailed(false);
-    setCurrentSrc(optimized || optimizedFallback);
-  }, [optimized, optimizedFallback]);
+    setCurrentSrc(primary || secondary);
+  }, [primary, secondary]);
 
   const handleError = () => {
-    if (!failed && optimizedFallback && optimizedFallback !== currentSrc) {
+    if (
+      !failed &&
+      typeof currentSrc === "string" &&
+      currentSrc.endsWith(".webp") &&
+      typeof src === "string" &&
+      src.endsWith(".png")
+    ) {
       setFailed(true);
-      setCurrentSrc(optimizedFallback);
+      setCurrentSrc(optimizeSrc(src, targetWidth));
+      return;
+    }
+    if (!failed && secondary && secondary !== currentSrc) {
+      setFailed(true);
+      setCurrentSrc(secondary);
     }
   };
 
-  const resolved = currentSrc || optimizedFallback;
+  const resolved = currentSrc || secondary;
   if (!resolved) return null;
 
-  const remote = isRemote(resolved);
-  const loadMode = loading || (priority ? "eager" : "lazy");
+  const useCdnImg =
+    isRemote(resolved) && resolved.includes("res.cloudinary.com");
 
-  if (fill) {
-    if (remote || unoptimized) {
-      return (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={resolved}
-          alt={alt}
-          onError={handleError}
-          className={className}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "center",
-            ...style,
-          }}
-          loading={loadMode}
-          decoding="async"
-          fetchPriority={priority ? "high" : "auto"}
-          referrerPolicy={remote ? "no-referrer" : undefined}
-        />
-      );
+  // Pre-optimized CDN / already-transformed remote → plain img (stable SSR)
+  if (useCdnImg) {
+    const imgStyle = fill
+      ? {
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: "center",
+          ...style,
+        }
+      : style;
+
+    // Honor object-contain from className for equipment shots
+    if (fill && typeof className === "string" && className.includes("object-contain")) {
+      imgStyle.objectFit = "contain";
     }
 
-    return (
-      <Image
-        src={resolved}
-        alt={alt}
-        fill
-        sizes={sizes || "100vw"}
-        priority={priority}
-        className={className}
-        style={style}
-        onError={handleError}
-      />
-    );
-  }
-
-  if (remote || unoptimized) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={resolved}
         alt={alt}
-        width={width}
-        height={height}
-        onError={handleError}
+        width={fill ? undefined : width || 1200}
+        height={fill ? undefined : height || 800}
         className={className}
-        style={style}
-        loading={loadMode}
+        style={imgStyle}
+        onError={handleError}
+        loading={priority ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={priority ? "high" : "auto"}
-        referrerPolicy={remote ? "no-referrer" : undefined}
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
+
+  // Local + other remotes → Next Image (configured quality 75)
+  if (fill) {
+    return (
+      <Image
+        key={resolved}
+        src={resolved}
+        alt={alt}
+        fill
+        sizes={
+          sizes ||
+          "(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1400px"
+        }
+        className={className}
+        style={style}
+        onError={handleError}
+        quality={75}
+        {...(priority ? { priority: true } : {})}
       />
     );
   }
 
   return (
     <Image
+      key={resolved}
       src={resolved}
       alt={alt}
       width={width || 1200}
       height={height || 800}
-      priority={priority}
+      sizes={sizes}
       className={className}
       style={style}
       onError={handleError}
+      quality={75}
+      {...(priority ? { priority: true } : {})}
     />
   );
 }
