@@ -120,13 +120,13 @@ export default function About() {
           <p className="mt-8 max-w-2xl text-sm leading-relaxed text-[#D8D8D8] md:mt-10 md:text-base">
             {data.description}
           </p>
-          <div className="mt-12 grid max-w-3xl grid-cols-3 gap-6 border-t border-white/10 pt-8 md:mt-16 md:gap-10">
+          <div className="mt-10 grid max-w-3xl grid-cols-3 gap-3 border-t border-white/10 pt-6 sm:gap-6 sm:pt-8 md:mt-16 md:gap-10">
             {stats.map((stat) => (
-              <div key={stat.label}>
-                <p className="font-display text-3xl font-bold tracking-tight text-[#D9D9D9] md:text-5xl">
+              <div key={stat.label} className="min-w-0">
+                <p className="font-poppins text-[1.65rem] font-bold leading-none tracking-tight text-[#D9D9D9] sm:text-3xl md:text-5xl">
                   {stat.value}
                 </p>
-                <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#A0A0A0]">
+                <p className="mt-2 text-[9px] font-semibold uppercase leading-snug tracking-[0.14em] text-[#A0A0A0] sm:text-[10px] sm:tracking-[0.22em]">
                   {stat.label}
                 </p>
               </div>

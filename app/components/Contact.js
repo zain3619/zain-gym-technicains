@@ -195,7 +195,7 @@ export default function Contact() {
       {/* ── SCENE 01: Sticky hero (stays, next panel slides over it) ── */}
       <section
         ref={heroRef}
-        className="relative z-[1] h-[85dvh] overflow-hidden lg:sticky lg:top-0 lg:h-[100dvh]"
+        className="relative z-[1] h-screen overflow-hidden bg-[#050505]"
       >
         <div className="absolute inset-0">
           <div
@@ -256,7 +256,7 @@ export default function Contact() {
       </section>
 
       {/* ── SCENE 02: Form panel slides UP over hero ── */}
-      <section className="relative z-[2] min-h-[100dvh] border-t border-white/10 bg-[#080808] shadow-[0_-40px_80px_rgba(0,0,0,0.55)]">
+      <section className="relative z-[2] min-h-screen border-t border-white/10 bg-[#080808] shadow-[0_-40px_80px_rgba(0,0,0,0.55)]">
         <div className="mx-auto max-w-[1600px] px-5 py-20 md:px-10 md:py-28 lg:px-14">
           <div className="mb-12 flex items-end justify-between gap-6 border-b border-white/8 pb-8">
             <div>
@@ -442,8 +442,8 @@ export default function Contact() {
       </section>
 
       {/* ── SCENE 03: Visit — sticky mid layer, next covers it ── */}
-      <section className="relative z-[3] min-h-[85dvh] overflow-hidden border-t border-white/10 bg-[#0D0D0D] lg:sticky lg:top-0 lg:min-h-[100dvh]">
-        <div className="mx-auto grid min-h-[85dvh] max-w-[1600px] lg:min-h-[100dvh] lg:grid-cols-2">
+      <section className="relative z-[3] min-h-screen overflow-hidden border-t border-white/10 bg-[#0D0D0D]">
+        <div className="mx-auto grid min-h-screen max-w-[1600px] lg:grid-cols-2">
           <div className="flex flex-col justify-center px-5 py-20 md:px-10 lg:px-14">
             <p className="scene-label mb-4">03 — Visit</p>
             <h2 className="display-xl text-[clamp(2.2rem,5.5vw,5rem)] text-[#F5F5F5]">
@@ -484,7 +484,7 @@ export default function Contact() {
       </section>
 
       {/* ── SCENE 04: FAQ + CTA slides over visit ── */}
-      <section className="relative z-[4] min-h-[100dvh] border-t border-white/10 bg-[#050505] shadow-[0_-40px_80px_rgba(0,0,0,0.55)]">
+      <section className="relative z-[4] min-h-screen border-t border-white/10 bg-[#050505] shadow-[0_-40px_80px_rgba(0,0,0,0.55)]">
         <div className="mx-auto max-w-[1600px] px-5 py-20 md:px-10 md:py-28 lg:px-14">
           <p className="scene-label mb-4">04 — Help</p>
           <h2 className="display-xl mb-14 text-[clamp(2rem,5vw,4rem)] text-[#F5F5F5]">

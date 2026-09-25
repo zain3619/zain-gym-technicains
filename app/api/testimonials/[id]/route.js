@@ -33,12 +33,14 @@ export async function PUT(req, context) {
     const name = formData.get("name");
     const role = formData.get("role");
     const text = formData.get("text");
+    const textRoman = formData.get("textRoman");
     const rating = formData.get("rating");
     const file = formData.get("image");
 
     if (name) testimonial.name = name;
     if (role) testimonial.role = role;
     if (text) testimonial.text = text;
+    if (textRoman != null) testimonial.textRoman = textRoman;
     if (rating) testimonial.rating = Number(rating);
 
     if (file && typeof file !== "string") {

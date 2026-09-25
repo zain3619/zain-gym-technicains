@@ -33,10 +33,126 @@
   --color-silver-light: var(--silver-light);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
+  --font-poppins: var(--font-poppins);
 }
 
 html {
-  background: var(--bg-primary);
+  background-color: #050505 !important;
+  background: #050505 !important;
+  color-scheme: dark;
+  scroll-behavior: auto;
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  min-height: 100%;
+}
+
+/* Fallback snap when JS section scroll is off (reduced-motion / no hydrate) */
+html.section-snap {
+  scroll-snap-type: y mandatory;
+}
+
+/* JS section scroll owns the page — kill native snap fighting */
+html.section-js {
+  scroll-snap-type: none !important;
+  scroll-behavior: auto !important;
+  overscroll-behavior-y: none;
+  overflow-anchor: none;
+}
+
+/* Cinematic section handoff while tweening */
+html.section-js.is-section-moving::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 5, 5, 0.18) 0%,
+    rgba(5, 5, 5, 0) 30%,
+    rgba(5, 5, 5, 0) 70%,
+    rgba(5, 5, 5, 0.22) 100%
+  );
+  animation: sectionVeil 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+html.section-js [data-stack-panel] > .relative.z-10,
+html.section-js [data-stack-panel] > .mx-auto {
+  transition:
+    opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html.section-js.is-section-moving [data-stack-panel] > .relative.z-10,
+html.section-js.is-section-moving [data-stack-panel] > .mx-auto {
+  will-change: opacity, transform;
+}
+
+html.section-js [data-stack-panel].is-leaving-panel > .relative.z-10,
+html.section-js [data-stack-panel].is-leaving-panel > .mx-auto {
+  opacity: 0.28;
+  transform: scale(0.97) translateY(-2vh);
+}
+
+html.section-js [data-stack-panel].is-entering-panel > .relative.z-10,
+html.section-js [data-stack-panel].is-entering-panel > .mx-auto {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  animation: sectionEnter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+html.section-js [data-stack-panel].is-active-panel:not(.is-entering-panel):not(
+    .is-leaving-panel
+  )
+  > .relative.z-10,
+html.section-js [data-stack-panel].is-active-panel:not(.is-entering-panel):not(
+    .is-leaving-panel
+  )
+  > .mx-auto {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes sectionVeil {
+  0% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes sectionEnter {
+  0% {
+    opacity: 0.35;
+    transform: translateY(4vh) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+html,
+body {
+  background-color: #050505 !important;
+}
+
+@media (min-width: 1024px) {
+  html {
+    scroll-snap-type: none;
+    scroll-padding-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
 }
 
 html.lenis,
@@ -57,14 +173,26 @@ html.lenis body {
 }
 
 body {
-  background-color: var(--bg-primary);
+  background-color: #050505 !important;
+  background: #050505 !important;
   color: var(--text-primary);
   font-family: var(--font-body), sans-serif;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  min-height: 100%;
+}
+
+/* Dark canvas backdrop — do NOT use body > div (breaks custom cursor) */
+.page-canvas,
+#__next,
+[data-overlay-container] {
+  background-color: #050505;
+  min-height: 100%;
 }
 
 ::selection {
@@ -83,6 +211,10 @@ img {
 
 .font-body {
   font-family: var(--font-body), sans-serif;
+}
+
+.font-poppins {
+  font-family: var(--font-poppins), "Poppins", sans-serif;
 }
 
 /* Cinematic overlays */
@@ -221,19 +353,30 @@ img {
 }
 
 /* Custom cursor */
+.custom-cursor-root {
+  pointer-events: none;
+  position: contents;
+}
+
 .cursor-dot,
 .cursor-label {
   pointer-events: none;
   position: fixed;
   top: 0;
   left: 0;
+  right: auto;
+  bottom: auto;
   z-index: 9999;
   mix-blend-mode: difference;
+  min-height: 0 !important;
+  background-color: transparent;
 }
 
 .cursor-dot {
   width: 8px;
   height: 8px;
+  max-width: 8px;
+  max-height: 8px;
   margin: -4px 0 0 -4px;
   border-radius: 999px;
   background: #f5f5f5;
@@ -247,6 +390,8 @@ img {
   justify-content: center;
   width: 72px;
   height: 72px;
+  max-width: 72px;
+  max-height: 72px;
   margin: -36px 0 0 -36px;
   border: 1px solid rgba(245, 245, 245, 0.55);
   border-radius: 999px;
@@ -258,7 +403,7 @@ img {
   opacity: 0;
   transform: scale(0.4);
   will-change: transform, opacity;
-  transition: none;
+  transition: opacity 0.2s ease;
 }
 
 @media (hover: none), (pointer: coarse) {

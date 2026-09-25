@@ -4,43 +4,43 @@ import React, { useEffect, useState } from "react";
 import MediaImage from "./ui/MediaImage";
 import StackPanel from "./ui/StackPanel";
 
-/** Original gallery images from admin / Cloudinary (same as before redesign) */
+/** Bundled gallery images (from Cloudinary → /public/media) */
 const ORIGINAL_GALLERY = [
   {
     id: "g1",
     title: "Strength Equipment",
     category: "Strength Equipment",
-    img: "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779360009/gallery/mcxityh1iqj8gkdchvw4.png",
+    img: "/media/gallery-strength-equipment-61da4a.webp",
   },
   {
     id: "g2",
     title: "Strength Equipment",
     category: "Strength Equipment",
-    img: "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779360007/gallery/okdpawgvpsnkqrufw43s.png",
+    img: "/media/gallery-strength-equipment-61da48.webp",
   },
   {
     id: "g3",
     title: "Strength Equipment",
     category: "Strength Equipment",
-    img: "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779360005/gallery/l9ej6cjl9l8rnsyrunop.png",
+    img: "/media/gallery-strength-equipment-61da46.webp",
   },
   {
     id: "g4",
     title: "Strength Equipment",
     category: "Strength Equipment",
-    img: "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779360004/gallery/meinfrgribgpcakle1mb.png",
+    img: "/media/gallery-strength-equipment-61da44.webp",
   },
   {
     id: "g5",
     title: "Cardio Machines",
     category: "Cardio Machines",
-    img: "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779359961/gallery/gzsbw6kigoqjlfzastne.png",
+    img: "/media/gallery-cardio-machines-61da40.webp",
   },
   {
     id: "g6",
     title: "Strength Equipment",
     category: "Strength Equipment",
-    img: "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779359778/gallery/jehxj6cfosh4majiigpw.png",
+    img: "/media/gallery-strength-equipment-61da3b.webp",
   },
 ];
 
@@ -105,7 +105,6 @@ export default function Equipment() {
           />
           <div className="absolute inset-0 bg-[#050505]/68" />
           <div className="cinema-overlay" />
-          <div className="grain-overlay hidden lg:block" />
         </div>
         <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-center px-5 py-20 md:px-10 md:py-24 lg:px-14">
           <p className="scene-label mb-4">03 — Equipment</p>
@@ -121,19 +120,18 @@ export default function Equipment() {
           z={EQUIP_BASE_Z + 1 + index}
           className="bg-[#050505]"
         >
-          <div className="absolute inset-0 bg-[#050505]">
+          <div className="absolute inset-0">
             <MediaImage
               src={item.img}
               alt={item.title}
               fill
               sizes="100vw"
               priority={index === 0}
-              className="object-contain object-center"
+              className="object-cover object-center"
               fallback={ORIGINAL_GALLERY[index % ORIGINAL_GALLERY.length].img}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]/35" />
+            <div className="absolute inset-0 bg-[#050505]/45" />
             <div className="cinema-overlay" />
-            <div className="grain-overlay hidden lg:block" />
           </div>
           <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-end px-5 pb-14 pt-24 md:px-10 md:pb-24 lg:px-14">
             <p className="scene-label mb-5">

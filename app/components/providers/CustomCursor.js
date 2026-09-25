@@ -2,10 +2,15 @@
 
 import { useEffect, useRef } from "react";
 
+/** Custom cursor: fast dot + soft label ring */
 export default function CustomCursor() {
+  const rootRef = useRef(null);
   const dotRef = useRef(null);
   const labelRef = useRef(null);
   const hover = useRef(false);
+  const target = useRef({ x: -100, y: -100 });
+  const labelPos = useRef({ x: -100, y: -100 });
+  const raf = useRef(0);
 
   useEffect(() => {
     const isFinePointer = window.matchMedia(
@@ -14,22 +19,15 @@ export default function CustomCursor() {
     if (!isFinePointer) return undefined;
 
     document.documentElement.classList.add("has-custom-cursor");
-    if (dotRef.current) dotRef.current.style.opacity = "1";
-
-    const place = (x, y) => {
-      const scale = hover.current ? 0 : 1;
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
-      }
-      if (labelRef.current) {
-        labelRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${
-          hover.current ? 1 : 0.4
-        })`;
-      }
-    };
+    if (rootRef.current) rootRef.current.style.opacity = "1";
 
     const onMove = (event) => {
-      place(event.clientX, event.clientY);
+      target.current.x = event.clientX;
+      target.current.y = event.clientY;
+      const scale = hover.current ? 0 : 1;
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0) scale(${scale})`;
+      }
     };
 
     const onOver = (event) => {
@@ -39,37 +37,52 @@ export default function CustomCursor() {
       if (!labelRef.current || !dotRef.current) return;
 
       if (interactive) {
-        const label = interactive.getAttribute("data-cursor") || "VIEW";
-        labelRef.current.textContent = label;
+        labelRef.current.textContent =
+          interactive.getAttribute("data-cursor") || "VIEW";
         hover.current = true;
         labelRef.current.style.opacity = "1";
+        dotRef.current.style.transform = `translate3d(${target.current.x}px, ${target.current.y}px, 0) scale(0)`;
       } else {
         hover.current = false;
         labelRef.current.style.opacity = "0";
       }
     };
 
+    const tick = () => {
+      const lx = labelPos.current.x;
+      const ly = labelPos.current.y;
+      labelPos.current.x += (target.current.x - lx) * 0.35;
+      labelPos.current.y += (target.current.y - ly) * 0.35;
+      if (labelRef.current) {
+        const s = hover.current ? 1 : 0.4;
+        labelRef.current.style.transform = `translate3d(${labelPos.current.x}px, ${labelPos.current.y}px, 0) scale(${s})`;
+      }
+      raf.current = requestAnimationFrame(tick);
+    };
+
     window.addEventListener("mousemove", onMove, { passive: true });
     document.addEventListener("mouseover", onOver);
+    raf.current = requestAnimationFrame(tick);
 
     return () => {
       document.documentElement.classList.remove("has-custom-cursor");
       window.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseover", onOver);
+      cancelAnimationFrame(raf.current);
     };
   }, []);
 
   return (
-    <>
-      <div
-        ref={dotRef}
-        className="cursor-dot"
-        aria-hidden
-        style={{ opacity: 0 }}
-      />
-      <div ref={labelRef} className="cursor-label" aria-hidden>
+    <div
+      ref={rootRef}
+      className="custom-cursor-root"
+      aria-hidden
+      style={{ opacity: 0 }}
+    >
+      <div ref={dotRef} className="cursor-dot" />
+      <div ref={labelRef} className="cursor-label">
         VIEW
       </div>
-    </>
+    </div>
   );
 }

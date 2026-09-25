@@ -23,6 +23,7 @@ export async function POST(req) {
     const name = formData.get("name");
     const role = formData.get("role");
     const text = formData.get("text");
+    const textRoman = formData.get("textRoman") || "";
     const rating = formData.get("rating") || 5;
     const file = formData.get("image");
 
@@ -38,6 +39,7 @@ export async function POST(req) {
       name,
       role,
       text,
+      textRoman,
       rating: Number(rating) || 5,
       imageUrl,
     });

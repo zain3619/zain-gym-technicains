@@ -14,6 +14,10 @@ const TestimonialSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  textRoman: {
+    type: String,
+    default: "",
+  },
   rating: {
     type: Number,
     min: 1,

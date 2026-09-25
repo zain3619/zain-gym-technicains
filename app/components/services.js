@@ -5,10 +5,10 @@ import MediaImage from "./ui/MediaImage";
 import StackPanel from "./ui/StackPanel";
 
 const PROGRAM_BANNERS = [
-  "/hero-gym.png",
-  "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779360009/gallery/mcxityh1iqj8gkdchvw4.png",
-  "/about-team.png",
-  "https://res.cloudinary.com/dpfeinyyb/image/upload/v1779359961/gallery/gzsbw6kigoqjlfzastne.png",
+  "/hero-gym.webp",
+  "/media/gallery-strength-equipment-61da4a.webp",
+  "/about-team.webp",
+  "/media/gallery-cardio-machines-61da40.webp",
 ];
 
 const FALLBACK_SERVICES = [

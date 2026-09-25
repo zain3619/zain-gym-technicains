@@ -6,10 +6,10 @@ import Equipment from "./components/equipment";
 import Process from "./components/process";
 import Projects from "./components/projects";
 import Team from "./components/team";
-import VideoSection from "./components/videos/VideoSection";
 import Testimonials from "./components/testimonials";
 import Pricing from "./components/pricing";
 import Footer from "./components/Footer";
+import SectionScroll from "./components/providers/SectionScroll";
 import {
   BUSINESS_ADDRESS,
   BUSINESS_CONTACT,
@@ -75,7 +75,8 @@ export default function Home() {
   };
 
   return (
-    <main className="relative bg-[#050505]">
+    <main className="relative min-h-screen bg-[#050505]">
+      <SectionScroll />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -88,7 +89,6 @@ export default function Home() {
       <Process />
       <Projects />
       <Team />
-      <VideoSection />
       <Testimonials />
       <Pricing />
       <Footer />
