@@ -100,7 +100,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="fixed top-0 left-0 z-[200] w-full border-b border-white/8 bg-[#050505]/92 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md md:py-3.5">
+    <header className="fixed top-0 left-0 z-[200] w-full border-b border-white/10 bg-[#050505]/40 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.25)] backdrop-blur-xl md:py-3.5">
       <nav className="relative z-[210] mx-auto grid w-full max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-5 md:px-10 lg:px-14">
           {/* Left — logo */}
           <Link
@@ -131,7 +131,7 @@ export default function Navbar() {
           </Link>
 
           {/* Center — pill nav (desktop) */}
-          <ul className="hidden items-center gap-1 rounded-2xl border border-white/10 bg-[#0A0A0A]/85 px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md lg:flex">
+          <ul className="hidden items-center gap-1 rounded-2xl border border-white/15 bg-white/[0.06] px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_28px_rgba(0,0,0,0.2)] backdrop-blur-2xl lg:flex supports-[backdrop-filter]:bg-white/[0.04]">
             {NAV_ITEMS.map((item) => {
               const isActive =
                 item.sectionId === null
@@ -145,8 +145,8 @@ export default function Navbar() {
                     onClick={(e) => handleNavClick(e, item)}
                     className={`block rounded-xl px-4 py-2 text-[13px] font-medium tracking-[-0.01em] transition-colors duration-300 ${
                       isActive
-                        ? "bg-white/8 text-[#F5F5F5]"
-                        : "text-[#A8A8A8] hover:text-[#F5F5F5]"
+                        ? "bg-white/12 text-[#F5F5F5] shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+                        : "text-[#A8A8A8] hover:bg-white/[0.06] hover:text-[#F5F5F5]"
                     }`}
                   >
                     {item.name}
