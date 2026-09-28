@@ -100,7 +100,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="fixed top-0 left-0 z-[200] w-full border-b border-white/10 bg-[#050505]/40 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.25)] backdrop-blur-xl md:py-3.5">
+    <header className="fixed top-0 left-0 z-[200] w-full bg-transparent py-4 md:py-5">
       <nav className="relative z-[210] mx-auto grid w-full max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-5 md:px-10 lg:px-14">
           {/* Left — logo */}
           <Link
@@ -130,8 +130,17 @@ export default function Navbar() {
             <span className="sr-only">{COMPANY_NAME}</span>
           </Link>
 
-          {/* Center — pill nav (desktop) */}
-          <ul className="hidden items-center gap-1 rounded-2xl border border-white/15 bg-white/[0.06] px-2 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_28px_rgba(0,0,0,0.2)] backdrop-blur-2xl lg:flex supports-[backdrop-filter]:bg-white/[0.04]">
+          {/* Center — glass pill (matches reference) */}
+          <ul
+            className="hidden items-center gap-0.5 rounded-full border border-white/15 bg-black/40 px-2.5 py-1.5 shadow-lg backdrop-blur-xl lg:flex"
+            style={{
+              backgroundImage:
+                "linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 45%, rgba(0,0,0,0.25) 100%)",
+              backgroundColor: "rgba(18,18,18,0.45)",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.45), 0 12px 40px rgba(0,0,0,0.4)",
+            }}
+          >
             {NAV_ITEMS.map((item) => {
               const isActive =
                 item.sectionId === null
@@ -143,10 +152,10 @@ export default function Navbar() {
                     href={item.href}
                     data-cursor="OPEN"
                     onClick={(e) => handleNavClick(e, item)}
-                    className={`block rounded-xl px-4 py-2 text-[13px] font-medium tracking-[-0.01em] transition-colors duration-300 ${
+                    className={`block rounded-full px-[1.05rem] py-2 text-[13px] font-medium tracking-[-0.01em] transition-colors duration-300 ${
                       isActive
-                        ? "bg-white/12 text-[#F5F5F5] shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
-                        : "text-[#A8A8A8] hover:bg-white/[0.06] hover:text-[#F5F5F5]"
+                        ? "text-white"
+                        : "text-[#C8C8C8] hover:text-white"
                     }`}
                   >
                     {item.name}
@@ -161,7 +170,7 @@ export default function Navbar() {
             <Link
               href="/contact"
               data-cursor="CONTACT"
-              className="group/cta hidden items-center gap-2 rounded-2xl bg-gradient-to-b from-[#F5F5F5] to-[#C8C8C8] px-5 py-2.5 text-[13px] font-semibold tracking-[-0.01em] text-[#050505] shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition-[filter,transform] duration-300 hover:brightness-105 lg:inline-flex"
+              className="group/cta hidden items-center gap-2 rounded-full bg-gradient-to-b from-[#F5F5F5] to-[#C8C8C8] px-5 py-2.5 text-[13px] font-semibold tracking-[-0.01em] text-[#050505] shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition-[filter,transform] duration-300 hover:brightness-105 lg:inline-flex"
             >
               Get a Quote
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/cta:translate-x-0.5" />

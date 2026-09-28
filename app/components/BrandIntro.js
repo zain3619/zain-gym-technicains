@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { COMPANY_NAME } from "../lib/seo";
 
@@ -77,15 +76,19 @@ export default function BrandIntro() {
       <div className="brand-intro__ring" aria-hidden />
 
       <div className="brand-intro__stage">
-        <div className="brand-intro__logo">
-          <Image
-            src="/icon.png"
-            alt=""
-            width={104}
-            height={104}
-            priority
-            className="brand-intro__logo-img"
-          />
+        <div className="brand-intro__logo-wrap">
+          <div className="brand-intro__logo">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/brand-logo.png?v=2`}
+              alt={`${COMPANY_NAME} logo`}
+              width={120}
+              height={120}
+              decoding="async"
+              fetchPriority="high"
+              className="brand-intro__logo-img"
+            />
+          </div>
         </div>
 
         <p className="brand-intro__eyebrow">Welcome to</p>

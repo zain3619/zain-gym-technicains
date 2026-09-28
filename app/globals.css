@@ -774,23 +774,31 @@ html.brand-intro-lock main > *:not(.brand-intro) {
   max-width: 920px;
 }
 
-.brand-intro__logo {
-  width: 88px;
-  height: 88px;
-  border-radius: 9999px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: #111;
+.brand-intro__logo-wrap {
   opacity: 1;
   transform: scale(1);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
 }
 
-.brand-intro.is-play .brand-intro__logo {
+.brand-intro.is-play .brand-intro__logo-wrap {
   animation: brandLogoIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
 }
 
+.brand-intro__logo {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: #1a1a1a;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 12px 40px rgba(0, 0, 0, 0.55),
+    0 0 48px rgba(217, 217, 217, 0.16);
+}
+
 .brand-intro__logo-img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -983,8 +991,8 @@ html.brand-intro-lock main > *:not(.brand-intro) {
 
 @media (min-width: 768px) {
   .brand-intro__logo {
-    width: 104px;
-    height: 104px;
+    width: 120px;
+    height: 120px;
   }
 
   .brand-intro__skip {
@@ -994,7 +1002,7 @@ html.brand-intro-lock main > *:not(.brand-intro) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .brand-intro.is-play .brand-intro__logo,
+  .brand-intro.is-play .brand-intro__logo-wrap,
   .brand-intro.is-play .brand-intro__eyebrow,
   .brand-intro.is-play .brand-intro__line,
   .brand-intro.is-play .brand-intro__line--accent,
@@ -1004,6 +1012,5 @@ html.brand-intro-lock main > *:not(.brand-intro) {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
-    width: 140px;
   }
 }
