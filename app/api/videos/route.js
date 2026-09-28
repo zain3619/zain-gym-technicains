@@ -73,7 +73,7 @@ export async function POST(req) {
     }
 
     if (!thumbnailUrl) {
-      thumbnailUrl = "/hero-gym.png";
+      thumbnailUrl = "/hero-gym.webp";
     }
 
     const video = await Video.create({

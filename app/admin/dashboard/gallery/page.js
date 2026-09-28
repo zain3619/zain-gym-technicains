@@ -6,11 +6,14 @@ import {
   Image as ImageIcon, CheckCircle, AlertCircle
 } from "lucide-react";
 import toast from "react-hot-toast";
+import ConfirmModal from "../../../components/ui/ConfirmModal";
 
 const CATEGORIES = ["All", "Cardio Machines", "Strength Equipment", "Free Weights", "Functional Training"];
 
 export default function GalleryManagementPage() {
   const [images, setImages] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
   
@@ -127,27 +130,35 @@ export default function GalleryManagementPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to permanently delete this image from Cloudinary?")) return;
-    
+  const askDelete = (id) => {
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget;
+    setDeleting(true);
     const token = localStorage.getItem("admin_token");
     try {
       const response = await fetch(`/api/gallery/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
         toast.success("Image removed from gallery");
+        setDeleteTarget(null);
         fetchGallery();
       } else {
         const data = await response.json();
-        throw new Error(data.message || "Failed to delete image");
+        throw new Error(data.message || "Deletion failed");
       }
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -189,12 +200,13 @@ export default function GalleryManagementPage() {
   };
 
   return (
+    <>
     <div className="space-y-8">
       
       {/* 1. Header Info */}
       <div>
         <h1 className="text-xl font-black uppercase text-white tracking-wider">
-          Gallery Stream & <span className="text-[#82cd2b]">Media CMS</span>
+          Gallery Stream & <span className="text-[#D9D9D9]">Media CMS</span>
         </h1>
         <p className="text-xs text-gray-500 mt-1">Directly sync gym machine layout pictures via bulk Cloudinary upload pipelines.</p>
       </div>
@@ -208,11 +220,11 @@ export default function GalleryManagementPage() {
           onDrop={handleDrop}
           className={`rounded-2xl border-2 border-dashed p-8 flex flex-col items-center justify-center text-center transition-all bg-[#0d0d0d] shadow-xl ${
             isDragOver 
-              ? "border-[#82cd2b] bg-[#82cd2b]/5" 
+              ? "border-[#D9D9D9] bg-[#D9D9D9]/5" 
               : "border-white/10 hover:border-white/20 bg-black/45"
           }`}
         >
-          <Upload className={`h-10 w-10 mb-3 transition-colors ${isDragOver ? "text-[#82cd2b]" : "text-gray-400"}`} />
+          <Upload className={`h-10 w-10 mb-3 transition-colors ${isDragOver ? "text-[#D9D9D9]" : "text-gray-400"}`} />
           <h3 className="text-xs font-black uppercase tracking-widest text-white">Drag & Drop Images Here</h3>
           <p className="text-[10px] text-gray-500 mt-1 mb-4">Supported: JPEG, PNG, WEBP (Maximum 5MB per file)</p>
           
@@ -245,7 +257,7 @@ export default function GalleryManagementPage() {
               <select
                 value={uploadCategory}
                 onChange={(e) => setUploadCategory(e.target.value)}
-                className="h-10 w-full rounded-lg border border-white/10 bg-black px-3 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22rgba(255,255,255,0.4)%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat"
+                className="h-10 w-full rounded-lg border border-white/10 bg-black px-3 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22rgba(255,255,255,0.4)%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat"
               >
                 {CATEGORIES.slice(1).map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -275,7 +287,7 @@ export default function GalleryManagementPage() {
           {/* Submission Indicators */}
           <div className="space-y-4">
             {uploadProgress === "uploading" && (
-              <div className="flex items-center gap-2 text-xs text-[#82cd2b] bg-[#82cd2b]/5 border border-[#82cd2b]/15 p-3 rounded-lg font-bold">
+              <div className="flex items-center gap-2 text-xs text-[#D9D9D9] bg-[#D9D9D9]/5 border border-[#D9D9D9]/15 p-3 rounded-lg font-bold">
                 <Loader2 className="h-4 w-4 animate-spin shrink-0" />
                 <span>Uploading files directly to Cloudinary CDN...</span>
               </div>
@@ -296,7 +308,7 @@ export default function GalleryManagementPage() {
             <button
               onClick={handleBulkUpload}
               disabled={uploadFiles.length === 0 || uploadProgress === "uploading"}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#97ff02] disabled:opacity-50 transition-all cursor-pointer shadow-md"
+              className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#D9D9D9] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#F5F5F5] disabled:opacity-50 transition-all cursor-pointer shadow-md"
             >
               START BULK UPLOAD ({uploadFiles.length} FILES)
             </button>
@@ -314,7 +326,7 @@ export default function GalleryManagementPage() {
             onClick={() => setSelectedCategory(cat)}
             className={`h-9 px-4.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
               selectedCategory === cat
-                ? "bg-[#82cd2b] text-black shadow-md"
+                ? "bg-[#D9D9D9] text-black shadow-md"
                 : "bg-[#0d0d0d] border border-white/5 text-gray-400 hover:text-white"
             }`}
           >
@@ -326,7 +338,7 @@ export default function GalleryManagementPage() {
       {/* 4. Gallery Photo Stream Grid */}
       {loading ? (
         <div className="flex h-[30vh] w-full items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#82cd2b]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#D9D9D9]" />
         </div>
       ) : images.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
@@ -352,7 +364,7 @@ export default function GalleryManagementPage() {
                       <Edit2 className="h-3.5 w-3.5" />
                     </button>
                     <button 
-                      onClick={() => handleDelete(img._id)}
+                      onClick={() => askDelete(img._id)}
                       className="h-8 w-8 rounded-lg bg-black/80 hover:bg-red-500 border border-white/15 hover:border-red-500 text-gray-300 hover:text-white flex items-center justify-center active:scale-90 transition-all"
                       title="Delete Image"
                     >
@@ -396,7 +408,7 @@ export default function GalleryManagementPage() {
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                   required
                 />
               </div>
@@ -406,7 +418,7 @@ export default function GalleryManagementPage() {
                 <select
                   value={editCategory}
                   onChange={(e) => setEditCategory(e.target.value)}
-                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-3 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22rgba(255,255,255,0.4)%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-3 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22rgba(255,255,255,0.4)%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat"
                 >
                   {CATEGORIES.slice(1).map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -425,7 +437,7 @@ export default function GalleryManagementPage() {
                 <button
                   onClick={handleRenameSave}
                   disabled={renaming}
-                  className="flex-1 h-11 rounded-lg bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#97ff02] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
+                  className="flex-1 h-11 rounded-lg bg-[#D9D9D9] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#F5F5F5] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
                 >
                   {renaming ? (
                     <Loader2 className="h-4.5 w-4.5 animate-spin text-black" />
@@ -443,5 +455,17 @@ export default function GalleryManagementPage() {
       )}
 
     </div>
+
+      <ConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Delete this image?"
+        message="This image will be permanently removed from the gallery."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => !deleting && setDeleteTarget(null)}
+      />
+    </>
   );
 }

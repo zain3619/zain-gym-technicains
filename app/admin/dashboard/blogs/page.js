@@ -6,9 +6,12 @@ import {
   Upload, Eye, PenTool, CheckCircle, EyeOff
 } from "lucide-react";
 import toast from "react-hot-toast";
+import ConfirmModal from "../../../components/ui/ConfirmModal";
 
 export default function BlogCMSPage() {
   const [blogs, setBlogs] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -123,20 +126,26 @@ export default function BlogCMSPage() {
     setModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this blog post?")) return;
-    
+  const askDelete = (id) => {
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget;
+    setDeleting(true);
     const token = localStorage.getItem("admin_token");
     try {
       const response = await fetch(`/api/blogs/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
         toast.success("Blog article deleted successfully");
+        setDeleteTarget(null);
         fetchBlogs();
       } else {
         const data = await response.json();
@@ -144,6 +153,8 @@ export default function BlogCMSPage() {
       }
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -200,18 +211,19 @@ export default function BlogCMSPage() {
   };
 
   return (
+    <>
     <div className="space-y-6">
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-black uppercase text-white tracking-wider">
-            Blog & Articles <span className="text-[#82cd2b]">CMS Portal</span>
+            Blog & Articles <span className="text-[#D9D9D9]">CMS Portal</span>
           </h1>
           <p className="text-xs text-gray-500 mt-1">Publish fitness guides, gym setup tutorials, and technical machines checklists.</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="flex h-10 items-center gap-2 rounded-lg bg-[#82cd2b] text-black px-4.5 text-xs font-black uppercase tracking-wider hover:bg-[#97ff02] active:scale-95 transition-all cursor-pointer shadow-md"
+          className="flex h-10 items-center gap-2 rounded-lg bg-[#D9D9D9] text-black px-4.5 text-xs font-black uppercase tracking-wider hover:bg-[#F5F5F5] active:scale-95 transition-all cursor-pointer shadow-md"
         >
           <Plus className="h-4 w-4" />
           WRITE ARTICLE
@@ -220,7 +232,7 @@ export default function BlogCMSPage() {
 
       {loading ? (
         <div className="flex h-[40vh] w-full items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#82cd2b]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#D9D9D9]" />
         </div>
       ) : blogs.length > 0 ? (
         <div className="rounded-2xl border border-white/5 bg-[#0d0d0d] overflow-hidden shadow-xl">
@@ -270,7 +282,7 @@ export default function BlogCMSPage() {
                           <Edit2 className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(blog._id)}
+                          onClick={() => askDelete(blog._id)}
                           className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg active:scale-90 transition-all cursor-pointer"
                           title="Delete Article"
                         >
@@ -298,7 +310,7 @@ export default function BlogCMSPage() {
             {/* Header */}
             <div className="flex justify-between items-center pb-4 border-b border-white/5 mb-5 shrink-0">
               <h3 className="text-sm font-black uppercase text-white tracking-widest flex items-center gap-2">
-                <PenTool className="h-4.5 w-4.5 text-[#82cd2b]" />
+                <PenTool className="h-4.5 w-4.5 text-[#D9D9D9]" />
                 {editId ? "Edit Article Details" : "Compose Technical Article"}
               </h3>
               <button onClick={() => setModalOpen(false)} className="p-1 text-gray-400 hover:text-white">
@@ -315,7 +327,7 @@ export default function BlogCMSPage() {
                   value={title}
                   onChange={handleTitleChange}
                   placeholder="e.g. How to Design a High-Yield Commercial Gym Setup"
-                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#82cd2b]/55 transition-all"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#D9D9D9]/55 transition-all"
                   required
                 />
               </div>
@@ -328,7 +340,7 @@ export default function BlogCMSPage() {
                     value={slug}
                     onChange={(e) => setSlug(generateAutoSlug(e.target.value))}
                     placeholder="high-yield-commercial-gym-setup"
-                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#82cd2b]/55 transition-all font-mono"
+                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#D9D9D9]/55 transition-all font-mono"
                     required
                   />
                 </div>
@@ -338,7 +350,7 @@ export default function BlogCMSPage() {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-3 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22rgba(255,255,255,0.4)%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat"
+                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-3 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22rgba(255,255,255,0.4)%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat"
                   >
                     <option value="Fitness">Fitness & Health</option>
                     <option value="Gym Design">Gym Layout & Design</option>
@@ -356,14 +368,14 @@ export default function BlogCMSPage() {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Write the full content of the blog article here..."
-                  className="w-full rounded-lg border border-white/10 bg-black p-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#82cd2b]/55 transition-all font-sans"
+                  className="w-full rounded-lg border border-white/10 bg-black p-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#D9D9D9]/55 transition-all font-sans"
                   required
                 />
               </div>
 
               {/* SEO parameters */}
               <div className="p-4 rounded-xl border border-white/5 bg-black/45 space-y-3">
-                <span className="text-[9px] text-[#82cd2b] font-black uppercase tracking-wider block mb-1">SEO Dynamic Tags</span>
+                <span className="text-[9px] text-[#D9D9D9] font-black uppercase tracking-wider block mb-1">SEO Dynamic Tags</span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[9px] text-gray-500 uppercase font-bold mb-1">SEO Title (Tab Header)</label>
@@ -372,7 +384,7 @@ export default function BlogCMSPage() {
                       value={seoTitle}
                       onChange={(e) => setSeoTitle(e.target.value)}
                       placeholder={title || "Google tab title..."}
-                      className="h-10 w-full rounded-lg border border-white/10 bg-black px-4.5 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                      className="h-10 w-full rounded-lg border border-white/10 bg-black px-4.5 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                     />
                   </div>
                   <div>
@@ -382,7 +394,7 @@ export default function BlogCMSPage() {
                       value={seoDescription}
                       onChange={(e) => setSeoDescription(e.target.value)}
                       placeholder="Google search summary..."
-                      className="h-10 w-full rounded-lg border border-white/10 bg-black px-4.5 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                      className="h-10 w-full rounded-lg border border-white/10 bg-black px-4.5 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                     />
                   </div>
                 </div>
@@ -401,7 +413,7 @@ export default function BlogCMSPage() {
                       />
                     </div>
                   ) : null}
-                  <label className="flex items-center justify-center gap-2 border border-dashed border-white/15 hover:border-[#82cd2b]/40 rounded-lg h-11 bg-black/35 hover:bg-black/60 transition-all cursor-pointer">
+                  <label className="flex items-center justify-center gap-2 border border-dashed border-white/15 hover:border-[#D9D9D9]/40 rounded-lg h-11 bg-black/35 hover:bg-black/60 transition-all cursor-pointer">
                     <Upload className="h-4 w-4 text-gray-400" />
                     <span className="text-[10px] font-extrabold uppercase text-white tracking-wider">Choose Image</span>
                     <input
@@ -451,7 +463,7 @@ export default function BlogCMSPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 h-11 rounded-lg bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#97ff02] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
+                  className="flex-1 h-11 rounded-lg bg-[#D9D9D9] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#F5F5F5] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
                 >
                   {submitting ? (
                     <Loader2 className="h-4.5 w-4.5 animate-spin text-black" />
@@ -470,5 +482,17 @@ export default function BlogCMSPage() {
       )}
 
     </div>
+
+      <ConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Delete this article?"
+        message="This blog post will be permanently removed."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => !deleting && setDeleteTarget(null)}
+      />
+    </>
   );
 }

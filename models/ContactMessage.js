@@ -33,6 +33,10 @@ const ContactMessageSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isDone: {
+    type: Boolean,
+    default: false,
+  },
 }, { timestamps: true });
 
 export default mongoose.models.ContactMessage || mongoose.model("ContactMessage", ContactMessageSchema);

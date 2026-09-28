@@ -72,7 +72,7 @@ export default function AdminSettingsPage() {
   if (loading) {
     return (
       <div className="flex h-[50vh] w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#82cd2b]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#D9D9D9]" />
       </div>
     );
   }
@@ -81,7 +81,7 @@ export default function AdminSettingsPage() {
     <div className="max-w-2xl space-y-6">
       <div>
         <h1 className="text-xl font-black uppercase text-white tracking-wider">
-          Admin <span className="text-[#82cd2b]">Account Settings</span>
+          Admin <span className="text-[#D9D9D9]">Account Settings</span>
         </h1>
         <p className="text-xs text-gray-500 mt-1">Configure your login credentials, administration email address, and access password.</p>
       </div>
@@ -90,7 +90,7 @@ export default function AdminSettingsPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           
           <h3 className="text-xs font-black uppercase tracking-widest text-white mb-2 pb-2 border-b border-white/5 flex items-center gap-2">
-            <ShieldCheck className="h-4.5 w-4.5 text-[#82cd2b]" />
+            <ShieldCheck className="h-4.5 w-4.5 text-[#D9D9D9]" />
             Identity Credentials
           </h3>
 
@@ -103,7 +103,7 @@ export default function AdminSettingsPage() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="h-11 w-full rounded-lg border border-white/10 bg-black pl-11 pr-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-black pl-11 pr-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                   required
                 />
               </div>
@@ -117,7 +117,7 @@ export default function AdminSettingsPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-11 w-full rounded-lg border border-white/10 bg-black pl-11 pr-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-black pl-11 pr-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                   required
                 />
               </div>
@@ -125,7 +125,7 @@ export default function AdminSettingsPage() {
           </div>
 
           <h3 className="text-xs font-black uppercase tracking-widest text-white mt-8 pb-2 border-b border-white/5 flex items-center gap-2">
-            <Key className="h-4.5 w-4.5 text-[#82cd2b]" />
+            <Key className="h-4.5 w-4.5 text-[#D9D9D9]" />
             Security Password
           </h3>
 
@@ -137,7 +137,7 @@ export default function AdminSettingsPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Leave blank to keep current"
-                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all placeholder:text-gray-700"
+                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all placeholder:text-gray-700"
               />
             </div>
 
@@ -148,7 +148,7 @@ export default function AdminSettingsPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm password"
-                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all placeholder:text-gray-700"
+                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all placeholder:text-gray-700"
               />
             </div>
           </div>
@@ -156,7 +156,7 @@ export default function AdminSettingsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#97ff02] disabled:opacity-50 transition-all cursor-pointer shadow-md"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#D9D9D9] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#F5F5F5] disabled:opacity-50 transition-all cursor-pointer shadow-md"
           >
             {saving ? (
               <Loader2 className="h-4.5 w-4.5 animate-spin text-black" />

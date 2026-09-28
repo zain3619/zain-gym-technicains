@@ -50,7 +50,7 @@ export default function HeroManagementPage() {
         ctaText2: "CONTACT US",
         ctaLink2: "/contact",
       });
-      setBgImage("/hero-gym.png");
+      setBgImage("/gym-hero-bg.mp4");
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ export default function HeroManagementPage() {
   if (loading) {
     return (
       <div className="flex h-[50vh] w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#82cd2b]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#D9D9D9]" />
       </div>
     );
   }
@@ -127,7 +127,7 @@ export default function HeroManagementPage() {
     <div className="max-w-4xl space-y-6">
       <div className="flex items-center gap-4 mb-4">
         <h1 className="text-xl font-black uppercase text-white tracking-wider">
-          Hero Layout Section <span className="text-[#82cd2b]">Management</span>
+          Hero Layout Section <span className="text-[#D9D9D9]">Management</span>
         </h1>
       </div>
 
@@ -144,7 +144,7 @@ export default function HeroManagementPage() {
               name="heading"
               value={formData.heading}
               onChange={handleInputChange}
-              className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#82cd2b]/55 transition-all"
+              className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#D9D9D9]/55 transition-all"
               required
             />
           </div>
@@ -156,7 +156,7 @@ export default function HeroManagementPage() {
               name="subheading"
               value={formData.subheading}
               onChange={handleInputChange}
-              className="w-full rounded-lg border border-white/10 bg-black p-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#82cd2b]/55 transition-all resize-none"
+              className="w-full rounded-lg border border-white/10 bg-black p-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#D9D9D9]/55 transition-all resize-none"
               required
             />
           </div>
@@ -169,7 +169,7 @@ export default function HeroManagementPage() {
                 name="ctaText1"
                 value={formData.ctaText1}
                 onChange={handleInputChange}
-                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
               />
             </div>
             <div>
@@ -179,7 +179,7 @@ export default function HeroManagementPage() {
                 name="ctaLink1"
                 value={formData.ctaLink1}
                 onChange={handleInputChange}
-                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
               />
             </div>
           </div>
@@ -192,7 +192,7 @@ export default function HeroManagementPage() {
                 name="ctaText2"
                 value={formData.ctaText2}
                 onChange={handleInputChange}
-                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
               />
             </div>
             <div>
@@ -202,7 +202,7 @@ export default function HeroManagementPage() {
                 name="ctaLink2"
                 value={formData.ctaLink2}
                 onChange={handleInputChange}
-                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
               />
             </div>
           </div>
@@ -234,7 +234,7 @@ export default function HeroManagementPage() {
             </div>
 
             {/* Drop Zone Input */}
-            <label className="flex flex-col items-center justify-center border border-dashed border-white/15 hover:border-[#82cd2b]/40 rounded-xl p-5 bg-black/35 hover:bg-black/60 transition-all cursor-pointer">
+            <label className="flex flex-col items-center justify-center border border-dashed border-white/15 hover:border-[#D9D9D9]/40 rounded-xl p-5 bg-black/35 hover:bg-black/60 transition-all cursor-pointer">
               <Upload className="h-6 w-6 text-gray-400 mb-2" />
               <span className="text-[10px] font-extrabold uppercase text-white tracking-wider">Choose Cinematic Background Video</span>
               <span className="text-[9px] text-gray-500 mt-1">Recommended: MP4 format (under 25MB)</span>
@@ -250,7 +250,7 @@ export default function HeroManagementPage() {
           <button
             type="submit"
             disabled={saving}
-            className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#97ff02] disabled:opacity-50 transition-all cursor-pointer shadow-md"
+            className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#D9D9D9] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#F5F5F5] disabled:opacity-50 transition-all cursor-pointer shadow-md"
           >
             {saving ? (
               <Loader2 className="h-4 w-4 animate-spin text-black" />

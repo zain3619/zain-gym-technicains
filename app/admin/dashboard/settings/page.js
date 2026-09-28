@@ -127,7 +127,7 @@ export default function GlobalSettingsPage() {
   if (loading) {
     return (
       <div className="flex h-[50vh] w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#82cd2b]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#D9D9D9]" />
       </div>
     );
   }
@@ -136,7 +136,7 @@ export default function GlobalSettingsPage() {
     <div className="max-w-4xl space-y-6">
       <div>
         <h1 className="text-xl font-black uppercase text-white tracking-wider">
-          Global Website <span className="text-[#82cd2b]">Settings CMS</span>
+          Global Website <span className="text-[#D9D9D9]">Settings CMS</span>
         </h1>
         <p className="text-xs text-gray-500 mt-1">Configure business address, phone, emails, operating hours, and social media handles.</p>
       </div>
@@ -146,7 +146,7 @@ export default function GlobalSettingsPage() {
         {/* Left Side: Text configurations */}
         <div className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-6 space-y-4 shadow-xl">
           <h3 className="text-xs font-black uppercase tracking-widest text-white mb-4 pb-2 border-b border-white/5 flex items-center gap-2">
-            <Settings className="h-4.5 w-4.5 text-[#82cd2b]" />
+            <Settings className="h-4.5 w-4.5 text-[#D9D9D9]" />
             Business Contacts
           </h3>
 
@@ -157,7 +157,7 @@ export default function GlobalSettingsPage() {
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+              className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
               required
             />
           </div>
@@ -169,7 +169,7 @@ export default function GlobalSettingsPage() {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+              className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
               required
             />
           </div>
@@ -181,7 +181,7 @@ export default function GlobalSettingsPage() {
               name="address"
               value={formData.address}
               onChange={handleInputChange}
-              className="w-full rounded-lg border border-white/10 bg-black p-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all resize-none"
+              className="w-full rounded-lg border border-white/10 bg-black p-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all resize-none"
               required
             />
           </div>
@@ -193,7 +193,7 @@ export default function GlobalSettingsPage() {
               name="openingHours"
               value={formData.openingHours}
               onChange={handleInputChange}
-              className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+              className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
             />
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function GlobalSettingsPage() {
             <h3 className="text-xs font-black uppercase tracking-widest text-white mb-2 pb-2 border-b border-white/5">Site Brand Elements</h3>
             
             <div className="flex items-center gap-4.5">
-              <div className="h-14 w-14 rounded-xl bg-black border border-white/10 flex items-center justify-center text-[#82cd2b] overflow-hidden shrink-0">
+              <div className="h-14 w-14 rounded-xl bg-black border border-white/10 flex items-center justify-center text-[#D9D9D9] overflow-hidden shrink-0">
                 {previewUrl || logoUrl ? (
                   <img src={previewUrl || logoUrl} alt="Logo" className="w-full h-full object-cover" />
                 ) : (
@@ -213,7 +213,7 @@ export default function GlobalSettingsPage() {
                 )}
               </div>
               
-              <label className="flex-1 flex h-11 items-center justify-center gap-2 border border-dashed border-white/15 hover:border-[#82cd2b]/40 bg-black/45 rounded-lg px-4 text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer">
+              <label className="flex-1 flex h-11 items-center justify-center gap-2 border border-dashed border-white/15 hover:border-[#D9D9D9]/40 bg-black/45 rounded-lg px-4 text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer">
                 <Upload className="h-4 w-4 text-gray-400" />
                 UPLOAD LOGO IMAGE
                 <input
@@ -232,7 +232,7 @@ export default function GlobalSettingsPage() {
                 name="footerText"
                 value={formData.footerText}
                 onChange={handleInputChange}
-                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
               />
             </div>
           </div>
@@ -249,7 +249,7 @@ export default function GlobalSettingsPage() {
                   name="facebook"
                   value={formData.facebook}
                   onChange={handleInputChange}
-                  className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                  className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                 />
               </div>
               <div>
@@ -259,7 +259,7 @@ export default function GlobalSettingsPage() {
                   name="instagram"
                   value={formData.instagram}
                   onChange={handleInputChange}
-                  className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                  className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                 />
               </div>
               <div>
@@ -269,7 +269,7 @@ export default function GlobalSettingsPage() {
                   name="youtube"
                   value={formData.youtube}
                   onChange={handleInputChange}
-                  className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                  className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                 />
               </div>
               <div>
@@ -279,7 +279,7 @@ export default function GlobalSettingsPage() {
                   name="linkedin"
                   value={formData.linkedin}
                   onChange={handleInputChange}
-                  className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                  className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                 />
               </div>
             </div>
@@ -287,7 +287,7 @@ export default function GlobalSettingsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#97ff02] disabled:opacity-50 transition-all cursor-pointer shadow-md"
+              className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#D9D9D9] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#F5F5F5] disabled:opacity-50 transition-all cursor-pointer shadow-md"
             >
               {saving ? (
                 <Loader2 className="h-4.5 w-4.5 animate-spin text-black" />

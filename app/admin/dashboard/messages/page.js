@@ -1,9 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  Mail, MailOpen, Trash2, Eye, X, Loader2, 
-  User, Building, ShieldQuestion, Calendar, DollarSign
+import {
+  Trash2,
+  Eye,
+  X,
+  Loader2,
+  User,
+  Building,
+  ShieldQuestion,
+  DollarSign,
+  CheckCircle2,
+  Phone,
+  Mail,
+  Calendar,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -11,6 +21,9 @@ export default function MessagesInboxPage() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMsg, setSelectedMsg] = useState(null);
+  const [filter, setFilter] = useState("all"); // all | open | done
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchMessages();
@@ -19,206 +32,336 @@ export default function MessagesInboxPage() {
   const fetchMessages = async () => {
     setLoading(true);
     const token = localStorage.getItem("admin_token");
-    const headers = { "Authorization": `Bearer ${token}` };
+    if (!token) {
+      setLoading(false);
+      toast.error("Please log in again");
+      window.location.href = "/admin";
+      return;
+    }
 
     try {
-      const response = await fetch("/api/contact", { headers });
-      const data = await response.json();
-      if (response.ok) {
-        setMessages(data);
+      const response = await fetch("/api/contact", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (response.status === 401) {
+        localStorage.removeItem("admin_token");
+        toast.error("Session expired — please log in again");
+        window.location.href = "/admin";
+        return;
       }
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch messages");
+      }
+
+      setMessages(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Messages fetch error:", error);
-      toast.error("Failed to fetch messages. Loading fallback simulation.");
-      setMessages([
-        {
-          _id: "m1",
-          name: "Zain Qaiser",
-          phone: "+92 323 3334777",
-          email: "m.qaiser76@yahoo.com",
-          business: "Zain Assembly Hub",
-          projectType: "Commercial Gym Setup",
-          budgetRange: "PKR 5M - 10M",
-          message: "We need dynamic installation of 24 cardio and plate-loaded machines next week at our DHA Lahore fitness club. Please contact me with quotation.",
-          isRead: false,
-          createdAt: new Date().toISOString(),
-        },
-        {
-          _id: "m2",
-          name: "Sarah Khan",
-          phone: "+92 300 1234567",
-          email: "sarah@gmail.com",
-          business: "Home Space Studio",
-          projectType: "Home Gym Installation",
-          budgetRange: "PKR 1M - 2M",
-          message: "Hi, I am looking to set up a private strength training rack, rubber dumbbells, and a bench at my home garage in Islamabad. Let me know details.",
-          isRead: true,
-          createdAt: new Date(Date.now() - 86400000).toISOString(),
-        }
-      ]);
+      toast.error(error.message || "Failed to fetch messages");
+      setMessages([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleToggleRead = async (msg) => {
+  const patchMessage = async (msg, patch, successText) => {
     const token = localStorage.getItem("admin_token");
-    const newReadState = !msg.isRead;
-
     try {
       const response = await fetch(`/api/contact/${msg._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ isRead: newReadState }),
+        body: JSON.stringify(patch),
       });
 
-      if (response.ok) {
-        toast.success(newReadState ? "Message marked as read" : "Message marked as unread");
-        
-        // Update local arrays
-        setMessages(prev => prev.map(m => m._id === msg._id ? { ...m, isRead: newReadState } : m));
-        if (selectedMsg && selectedMsg._id === msg._id) {
-          setSelectedMsg(prev => ({ ...prev, isRead: newReadState }));
-        }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update ticket");
       }
+
+      const updated = data.messageDoc
+        ? {
+            ...msg,
+            ...patch,
+            isRead:
+              data.messageDoc.isRead ??
+              patch.isRead ??
+              msg.isRead,
+            isDone:
+              data.messageDoc.isDone ??
+              patch.isDone ??
+              msg.isDone,
+          }
+        : { ...msg, ...patch };
+
+      setMessages((prev) =>
+        prev.map((m) => (m._id === msg._id ? updated : m))
+      );
+      if (selectedMsg && selectedMsg._id === msg._id) {
+        setSelectedMsg(updated);
+      }
+      if (successText) toast.success(successText);
+      return updated;
     } catch (error) {
       console.error(error);
+      toast.error(error.message || "Could not update ticket");
+      return null;
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to permanently delete this message record?")) return;
-    
+  const handleToggleDone = async (msg, e) => {
+    e?.stopPropagation?.();
+    const next = !msg.isDone;
+    await patchMessage(
+      msg,
+      { isDone: next, isRead: next ? true : msg.isRead },
+      next ? "Ticket marked as done" : "Ticket reopened"
+    );
+  };
+
+  const askDelete = (msg, e) => {
+    e?.stopPropagation?.();
+    setDeleteTarget(msg);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget?._id) return;
+    setDeleting(true);
     const token = localStorage.getItem("admin_token");
     try {
-      const response = await fetch(`/api/contact/${id}`, {
+      const response = await fetch(`/api/contact/${deleteTarget._id}`, {
         method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.ok) {
-        toast.success("Inquiry removed from inbox");
-        setSelectedMsg(null);
-        fetchMessages();
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || "Failed to delete ticket");
       }
+
+      toast.success("Ticket permanently deleted");
+      setMessages((prev) => prev.filter((m) => m._id !== deleteTarget._id));
+      if (selectedMsg?._id === deleteTarget._id) setSelectedMsg(null);
+      setDeleteTarget(null);
     } catch (error) {
-      toast.error("Failed to delete record");
+      toast.error(error.message || "Failed to delete record");
+    } finally {
+      setDeleting(false);
     }
   };
 
-  const openMessageDetails = (msg) => {
+  const openMessageDetails = async (msg) => {
     setSelectedMsg(msg);
     if (!msg.isRead) {
-      handleToggleRead(msg); // Automatically mark as read when viewing details!
+      await patchMessage(msg, { isRead: true });
     }
   };
+
+  const filtered = messages.filter((m) => {
+    if (filter === "done") return Boolean(m.isDone);
+    if (filter === "open") return !m.isDone;
+    return true;
+  });
+
+  const openCount = messages.filter((m) => !m.isDone).length;
+  const doneCount = messages.filter((m) => m.isDone).length;
 
   return (
     <div className="space-y-6">
-      
-      <div>
-        <h1 className="text-xl font-black uppercase text-white tracking-wider">
-          Contact Inquiry <span className="text-[#82cd2b]">Inbox Logs</span>
-        </h1>
-        <p className="text-xs text-gray-500 mt-1">Read and filter prospective commercial gym build and technician leads.</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-xl font-black uppercase tracking-wider text-white">
+            Contact Inquiry <span className="text-[#D9D9D9]">Tickets</span>
+          </h1>
+          <p className="mt-1 text-xs text-gray-500">
+            Each inquiry is a ticket — view, mark done, or delete.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {[
+            { key: "all", label: `All (${messages.length})` },
+            { key: "open", label: `Open (${openCount})` },
+            { key: "done", label: `Done (${doneCount})` },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setFilter(tab.key)}
+              className={`h-9 px-3 text-[10px] font-bold uppercase tracking-[0.16em] transition-colors ${
+                filter === tab.key
+                  ? "bg-[#D9D9D9] text-[#050505]"
+                  : "border border-white/10 text-[#A0A0A0] hover:border-white/25 hover:text-white"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
         <div className="flex h-[40vh] w-full items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#82cd2b]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#D9D9D9]" />
         </div>
-      ) : messages.length > 0 ? (
-        <div className="rounded-2xl border border-white/5 bg-[#0d0d0d] overflow-hidden shadow-xl">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-white/5 bg-black/45 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  <th className="p-4 w-[60px]">Status</th>
-                  <th className="p-4">Sender</th>
-                  <th className="p-4">Business / Studio</th>
-                  <th className="p-4">Project Type</th>
-                  <th className="p-4">Submission Date</th>
-                  <th className="p-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-xs text-gray-300">
-                {messages.map((msg) => (
-                  <tr 
-                    key={msg._id} 
-                    className={`hover:bg-white/2 transition-colors cursor-pointer ${
-                      !msg.isRead ? "font-bold text-white bg-white/[0.01]" : "text-gray-400"
-                    }`}
-                    onClick={() => openMessageDetails(msg)}
+      ) : filtered.length > 0 ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((msg) => {
+            const done = Boolean(msg.isDone);
+            return (
+              <article
+                key={msg._id}
+                onClick={() => openMessageDetails(msg)}
+                className={`group relative cursor-pointer rounded-2xl border bg-[#0D0D0D] p-5 transition-colors ${
+                  done
+                    ? "border-[#D9D9D9]/35 bg-[#0D0D0D]/80"
+                    : "border-white/10 hover:border-[#D9D9D9]/40"
+                }`}
+              >
+                {/* Done tick — top right */}
+                {done ? (
+                  <div
+                    className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#D9D9D9] text-[#050505]"
+                    title="Marked as done"
                   >
-                    <td className="p-4" onClick={(e) => { e.stopPropagation(); handleToggleRead(msg); }}>
-                      <button className="p-1 hover:text-[#82cd2b] transition-colors">
-                        {msg.isRead ? (
-                          <MailOpen className="h-4.5 w-4.5 text-gray-600" />
-                        ) : (
-                          <Mail className="h-4.5 w-4.5 text-[#82cd2b] drop-shadow-[0_0_8px_rgba(130,205,43,0.3)]" />
-                        )}
-                      </button>
-                    </td>
-                    <td className="p-4 truncate max-w-[150px]">{msg.name}</td>
-                    <td className="p-4 truncate max-w-[150px]">{msg.business}</td>
-                    <td className="p-4 truncate max-w-[180px]">{msg.projectType}</td>
-                    <td className="p-4 text-[11px] text-gray-500">
+                    <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2.5} />
+                  </div>
+                ) : null}
+
+                <div className={`mb-4 flex items-start gap-3 ${done ? "pr-12" : ""}`}>
+                  <div
+                    className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-[10px] font-bold uppercase ${
+                      done
+                        ? "border-[#D9D9D9]/30 text-[#D9D9D9]"
+                        : "border-white/15 text-[#A0A0A0]"
+                    }`}
+                  >
+                    {msg.name?.substring(0, 2) || "IN"}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-white">
+                      {msg.name}
+                    </p>
+                    <p className="mt-0.5 truncate text-[11px] text-[#A0A0A0]">
+                      {msg.business}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mb-4 space-y-2 border-y border-white/8 py-3 text-[11px]">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="uppercase tracking-[0.14em] text-[#666]">
+                      Project
+                    </span>
+                    <span className="truncate text-right text-[#D9D9D9]">
+                      {msg.projectType}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="uppercase tracking-[0.14em] text-[#666]">
+                      Budget
+                    </span>
+                    <span className="truncate text-right text-[#C8C8C8]">
+                      {msg.budgetRange}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-1.5 uppercase tracking-[0.14em] text-[#666]">
+                      <Calendar className="h-3 w-3" />
+                      Date
+                    </span>
+                    <span className="text-[#A0A0A0]">
                       {new Date(msg.createdAt).toLocaleDateString(undefined, {
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",
-                        minute: "2-digit"
+                        minute: "2-digit",
                       })}
-                    </td>
-                    <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex justify-end gap-2.5">
-                        <button
-                          onClick={() => openMessageDetails(msg)}
-                          className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-                          title="Open Message"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(msg._id)}
-                          className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
-                          title="Delete Inquiry"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </span>
+                  </div>
+                </div>
+
+                <p className="mb-5 line-clamp-2 text-xs leading-relaxed text-[#A0A0A0]">
+                  {msg.message}
+                </p>
+
+                <div
+                  className="flex items-center gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {!done ? (
+                    <button
+                      type="button"
+                      onClick={(e) => handleToggleDone(msg, e)}
+                      className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#D9D9D9] text-[10px] font-bold uppercase tracking-[0.14em] text-[#050505] transition-colors hover:bg-[#F5F5F5]"
+                    >
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Mark as Done
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => openMessageDetails(msg)}
+                    className={`flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-[#A0A0A0] hover:border-white/25 hover:text-white ${
+                      done ? "ml-auto" : ""
+                    }`}
+                    title="View"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => askDelete(msg, e)}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-[#A0A0A0] hover:border-red-500/40 hover:text-red-400"
+                    title="Delete"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
       ) : (
-        <div className="py-12 text-center border border-dashed border-white/10 rounded-2xl bg-[#0d0d0d] text-gray-500 text-xs">
-          Your inbox folder is completely pristine! No customer messages have been logged yet.
+        <div className="border border-dashed border-white/10 bg-[#0d0d0d] py-12 text-center text-xs text-gray-500">
+          {filter === "done"
+            ? "No completed tickets yet."
+            : filter === "open"
+              ? "No open tickets — inbox is clear."
+              : "Your inbox is empty. No inquiries yet."}
         </div>
       )}
 
-      {/* DETAIL INBOX POPUP DIALOG */}
-      {selectedMsg && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-[550px] rounded-2xl border border-white/10 bg-[#0d0d0d] p-6 shadow-2xl relative max-h-[85vh] overflow-y-auto no-scrollbar">
-            
-            {/* Header */}
-            <div className="flex justify-between items-center pb-4 border-b border-white/5 mb-5">
+      {selectedMsg ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <div className="relative max-h-[85vh] w-full max-w-[550px] overflow-y-auto border border-white/10 bg-[#0d0d0d] p-6 shadow-2xl no-scrollbar">
+            <div className="mb-5 flex items-start justify-between border-b border-white/5 pb-4">
               <div>
-                <h3 className="text-sm font-black uppercase text-white tracking-widest">Inquiry Details</h3>
-                <span className="text-[9px] text-[#82cd2b] font-bold uppercase tracking-wider block mt-0.5">
+                <div className="mb-2 flex items-center gap-2">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-white">
+                    Ticket Details
+                  </h3>
+                  {selectedMsg.isDone ? (
+                    <span className="inline-flex items-center gap-1 border border-[#D9D9D9]/40 bg-[#D9D9D9]/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em] text-[#D9D9D9]">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Done
+                    </span>
+                  ) : (
+                    <span className="border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em] text-amber-300">
+                      Open
+                    </span>
+                  )}
+                </div>
+                <span className="block text-[9px] font-bold uppercase tracking-wider text-[#666]">
                   ID: {selectedMsg._id}
                 </span>
               </div>
-              <button 
+              <button
+                type="button"
                 onClick={() => setSelectedMsg(null)}
                 className="p-1 text-gray-400 hover:text-white"
               >
@@ -226,77 +369,161 @@ export default function MessagesInboxPage() {
               </button>
             </div>
 
-            {/* Grid detail metrics */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-6">
-              <div className="flex items-center gap-2.5 p-3 rounded-lg bg-black border border-white/5">
-                <User className="h-4 w-4 text-[#82cd2b]" />
+            <div className="mb-6 grid grid-cols-1 gap-3 text-xs sm:grid-cols-2">
+              <div className="flex items-center gap-2.5 border border-white/5 bg-black p-3">
+                <User className="h-4 w-4 text-[#D9D9D9]" />
                 <div className="min-w-0">
-                  <span className="text-[9px] text-gray-500 block uppercase font-bold">Contact Name</span>
-                  <span className="text-white font-bold block truncate">{selectedMsg.name}</span>
+                  <span className="block text-[9px] font-bold uppercase text-gray-500">
+                    Contact Name
+                  </span>
+                  <span className="block truncate font-bold text-white">
+                    {selectedMsg.name}
+                  </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2.5 p-3 rounded-lg bg-black border border-white/5">
-                <Building className="h-4 w-4 text-blue-400" />
+              <div className="flex items-center gap-2.5 border border-white/5 bg-black p-3">
+                <Building className="h-4 w-4 text-[#D9D9D9]" />
                 <div className="min-w-0">
-                  <span className="text-[9px] text-gray-500 block uppercase font-bold">Gym / Business</span>
-                  <span className="text-white font-bold block truncate">{selectedMsg.business}</span>
+                  <span className="block text-[9px] font-bold uppercase text-gray-500">
+                    Gym / Business
+                  </span>
+                  <span className="block truncate font-bold text-white">
+                    {selectedMsg.business}
+                  </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2.5 p-3 rounded-lg bg-black border border-white/5">
-                <ShieldQuestion className="h-4 w-4 text-purple-400" />
+              <div className="flex items-center gap-2.5 border border-white/5 bg-black p-3">
+                <ShieldQuestion className="h-4 w-4 text-[#D9D9D9]" />
                 <div className="min-w-0">
-                  <span className="text-[9px] text-gray-500 block uppercase font-bold">Inquiry Type</span>
-                  <span className="text-white font-bold block truncate">{selectedMsg.projectType}</span>
+                  <span className="block text-[9px] font-bold uppercase text-gray-500">
+                    Inquiry Type
+                  </span>
+                  <span className="block truncate font-bold text-white">
+                    {selectedMsg.projectType}
+                  </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2.5 p-3 rounded-lg bg-black border border-white/5">
-                <DollarSign className="h-4 w-4 text-amber-400" />
+              <div className="flex items-center gap-2.5 border border-white/5 bg-black p-3">
+                <DollarSign className="h-4 w-4 text-[#D9D9D9]" />
                 <div className="min-w-0">
-                  <span className="text-[9px] text-gray-500 block uppercase font-bold">Budget Allocation</span>
-                  <span className="text-white font-bold block truncate">{selectedMsg.budgetRange}</span>
+                  <span className="block text-[9px] font-bold uppercase text-gray-500">
+                    Budget
+                  </span>
+                  <span className="block truncate font-bold text-white">
+                    {selectedMsg.budgetRange}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Message Body */}
-            <div className="p-4 rounded-xl border border-white/5 bg-black/45 text-xs mb-6">
-              <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider block mb-2">Message Body</span>
-              <p className="text-gray-300 whitespace-pre-line leading-relaxed">{selectedMsg.message}</p>
+            <div className="mb-5 border border-white/5 bg-black/45 p-4 text-xs">
+              <span className="mb-2 block text-[9px] font-bold uppercase tracking-wider text-gray-500">
+                Message
+              </span>
+              <p className="leading-relaxed whitespace-pre-line text-gray-300">
+                {selectedMsg.message}
+              </p>
             </div>
 
-            {/* Sender Contacts & Actions */}
-            <div className="p-4 rounded-xl border border-[#82cd2b]/10 bg-[#82cd2b]/5 text-xs mb-6 space-y-2">
-              <span className="text-[9px] text-[#82cd2b] font-bold uppercase tracking-wider block mb-1">Reply to Sender</span>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-400">Email:</span>
-                <a href={`mailto:${selectedMsg.email}`} className="text-white font-bold hover:underline">{selectedMsg.email}</a>
+            <div className="mb-6 space-y-2 border border-white/10 p-4 text-xs">
+              <span className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-[#D9D9D9]">
+                Reply to Sender
+              </span>
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex items-center gap-1.5 text-gray-400">
+                  <Mail className="h-3.5 w-3.5" /> Email
+                </span>
+                <a
+                  href={`mailto:${selectedMsg.email}`}
+                  className="font-bold text-white hover:underline"
+                >
+                  {selectedMsg.email}
+                </a>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-400">Phone number:</span>
-                <a href={`tel:${selectedMsg.phone}`} className="text-white font-bold hover:underline">{selectedMsg.phone}</a>
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex items-center gap-1.5 text-gray-400">
+                  <Phone className="h-3.5 w-3.5" /> Phone
+                </span>
+                <a
+                  href={`tel:${selectedMsg.phone}`}
+                  className="font-bold text-white hover:underline"
+                >
+                  {selectedMsg.phone}
+                </a>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-white/5 flex gap-3">
+            <div className="flex gap-3 border-t border-white/5 pt-4">
+              {!selectedMsg.isDone ? (
+                <button
+                  type="button"
+                  onClick={() => handleToggleDone(selectedMsg)}
+                  className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#D9D9D9] text-xs font-bold uppercase tracking-wider text-[#050505] transition-all hover:bg-[#F5F5F5]"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Mark as Done
+                </button>
+              ) : null}
               <button
-                onClick={() => handleToggleRead(selectedMsg)}
-                className="flex-1 h-11 rounded-lg border border-white/15 bg-transparent text-white font-bold text-xs uppercase tracking-wider hover:bg-white/5 transition-all cursor-pointer"
+                type="button"
+                onClick={() => askDelete(selectedMsg)}
+                className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-600 text-xs font-extrabold uppercase tracking-widest text-white hover:bg-red-500"
               >
-                MARK AS {selectedMsg.isRead ? "UNREAD" : "READ"}
-              </button>
-              <button
-                onClick={() => handleDelete(selectedMsg._id)}
-                className="flex-1 h-11 rounded-lg bg-red-600 hover:bg-red-500 text-white font-extrabold text-xs uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
-              >
-                <Trash2 className="h-4.5 w-4.5" />
-                DELETE INQUIRY
+                <Trash2 className="h-4 w-4" />
+                Delete
               </button>
             </div>
-
           </div>
         </div>
-      )}
+      ) : null}
 
+      {/* Delete confirmation popup */}
+      {deleteTarget ? (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0D0D0D] p-6 shadow-2xl">
+            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-red-400">
+              <Trash2 className="h-5 w-5" />
+            </div>
+            <h3 className="font-display text-lg font-bold uppercase tracking-[-0.02em] text-white">
+              Delete this ticket?
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-[#A0A0A0]">
+              Are you sure you want to permanently delete the inquiry from{" "}
+              <span className="font-semibold text-white">
+                {deleteTarget.name}
+              </span>
+              {deleteTarget.business ? (
+                <> ({deleteTarget.business})</>
+              ) : null}
+              ? This action cannot be undone.
+            </p>
+
+            <div className="mt-7 flex gap-3">
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => setDeleteTarget(null)}
+                className="flex h-11 flex-1 items-center justify-center rounded-lg border border-white/15 text-xs font-bold uppercase tracking-[0.16em] text-white transition hover:bg-white/5 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={confirmDelete}
+                className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 text-xs font-extrabold uppercase tracking-[0.16em] text-white transition hover:bg-red-500 disabled:opacity-50"
+              >
+                {deleting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

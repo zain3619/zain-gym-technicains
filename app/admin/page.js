@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Dumbbell, ShieldAlert, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { ShieldAlert, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
+import { COMPANY_NAME } from "../lib/seo";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -14,11 +17,8 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Redirect if already logged in
     const token = localStorage.getItem("admin_token");
-    if (token) {
-      router.push("/admin/dashboard");
-    }
+    if (token) router.push("/admin/dashboard");
   }, [router]);
 
   const handleSubmit = async (e) => {
@@ -34,26 +34,19 @@ export default function AdminLoginPage() {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.message || "Invalid credentials");
       }
 
       localStorage.setItem("admin_token", data.token);
       localStorage.setItem("admin_user", JSON.stringify(data));
-      
-      toast.success("Welcome back! Loading your dashboard...");
-      
-      setTimeout(() => {
-        router.push("/admin/dashboard");
-      }, 1000);
+      toast.success("Welcome back");
+      router.push("/admin/dashboard");
     } catch (err) {
       setError(err.message);
       toast.error(err.message);
@@ -63,84 +56,83 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black px-4 relative overflow-hidden">
-      {/* Decorative Blur Backgrounds */}
-      <div className="absolute top-[-10%] right-[-10%] w-[35rem] h-[35rem] rounded-full bg-[#82cd2b]/5 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[35rem] h-[35rem] rounded-full bg-blue-900/5 blur-[120px] pointer-events-none" />
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#050505] px-5">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(217,217,217,0.06),transparent_55%)]" />
+      <div className="cinema-overlay pointer-events-none absolute inset-0 opacity-40" />
 
-      <div className="w-full max-w-[440px] z-10">
-        {/* Logo Icon */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#111] border border-white/10 text-[#82cd2b] shadow-[0_0_25px_rgba(130,205,43,0.15)] mb-3">
-            <Dumbbell className="h-7 w-7" />
+      <div className="relative z-10 w-full max-w-[420px]">
+        <div className="mb-10 flex flex-col items-center text-center">
+          <div className="relative mb-5 h-16 w-16 overflow-hidden border border-white/15 bg-[#080808]">
+            <Image
+              src="/icon.png"
+              alt={COMPANY_NAME}
+              fill
+              sizes="64px"
+              className="object-cover"
+              priority
+            />
           </div>
-          <h1 className="text-white text-2xl font-black tracking-tighter uppercase text-center leading-none">
-            ZAIN GYM <span className="text-[#82cd2b]">TECHNICIANS</span>
+          <p className="scene-label mb-3">Admin Access</p>
+          <h1 className="font-display text-2xl font-bold uppercase tracking-[-0.03em] text-[#F5F5F5]">
+            Zain Gym
+            <span className="mt-1 block text-sm font-medium tracking-[0.28em] text-[#A0A0A0]">
+              Technicians
+            </span>
           </h1>
-          <span className="text-[10px] text-gray-500 tracking-[3px] uppercase mt-1">
-            Secure Admin Gateway
-          </span>
         </div>
 
-        {/* Card */}
-        <div className="rounded-[20px] border border-white/10 bg-[#0d0d0d] p-8 shadow-[0_24px_50px_rgba(0,0,0,0.6)]">
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-white">Administrator Login</h2>
-            <p className="text-xs text-gray-400 mt-1">Enter your credentials below to enter the cockpit.</p>
+        <div className="border border-white/10 bg-[#080808]/90 p-8 backdrop-blur-md">
+          <div className="mb-7 border-b border-white/8 pb-5">
+            <h2 className="font-display text-lg font-bold uppercase tracking-[-0.02em] text-[#F5F5F5]">
+              Sign In
+            </h2>
+            <p className="mt-2 text-xs tracking-wide text-[#A0A0A0]">
+              Enter your credentials to manage the site.
+            </p>
           </div>
 
-          {error && (
-            <div className="mb-5 flex items-start gap-2.5 rounded-lg border border-red-500/20 bg-red-500/5 p-3.5 text-xs text-red-400">
-              <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
+          {error ? (
+            <div className="mb-5 flex items-start gap-2.5 border border-red-500/25 bg-red-500/5 p-3.5 text-xs text-red-300">
+              <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
-          )}
+          ) : null}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
-                Email Address
+              <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.22em] text-[#A0A0A0]">
+                Email
               </label>
               <input
                 type="email"
                 placeholder="admin@zaingym.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-12 w-full rounded-lg border border-white/10 bg-black/45 px-4 text-sm text-white placeholder:text-gray-600 outline-none focus:border-[#82cd2b]/55 focus:ring-1 focus:ring-[#82cd2b]/25 transition-all"
+                className="h-12 w-full border border-white/12 bg-[#050505] px-4 text-sm text-[#F5F5F5] outline-none placeholder:text-[#666] focus:border-[#D9D9D9]/45"
                 required
               />
             </div>
 
-            <div className="relative">
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                  Password
-                </label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    toast.info("Master account seeded in server.js by default.");
-                  }}
-                  className="text-[10px] text-[#82cd2b] hover:underline"
-                >
-                  Forgot Password?
-                </button>
-              </div>
+            <div>
+              <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.22em] text-[#A0A0A0]">
+                Password
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 w-full rounded-lg border border-white/10 bg-black/45 pl-4 pr-10 text-sm text-white placeholder:text-gray-600 outline-none focus:border-[#82cd2b]/55 focus:ring-1 focus:ring-[#82cd2b]/25 transition-all"
+                  className="h-12 w-full border border-white/12 bg-[#050505] px-4 pr-11 text-sm text-[#F5F5F5] outline-none placeholder:text-[#666] focus:border-[#D9D9D9]/45"
                   required
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#A0A0A0] hover:text-[#F5F5F5]"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
@@ -148,22 +140,25 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#97ff02] disabled:opacity-50 active:scale-[0.98] transition-all cursor-pointer shadow-[0_12px_24px_rgba(130,205,43,0.15)] hover:shadow-[0_12px_32px_rgba(130,205,43,0.25)]"
+              className="btn-silver-fill mt-2 flex h-12 w-full items-center justify-center gap-2 text-[11px] disabled:opacity-50"
             >
               {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin text-black" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <>
-                  SIGN IN
-                  <ArrowRight className="h-4.5 w-4.5" />
+                  Sign In
+                  <ArrowRight size={16} />
                 </>
               )}
             </button>
           </form>
         </div>
 
-        <div className="mt-8 text-center text-[10px] text-gray-600">
-          &copy; {new Date().getFullYear()} Zain Gym Technicians. Powered by Admin Core v1.0.
+        <div className="mt-8 flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-[#666]">
+          <Link href="/" className="hover:text-[#D9D9D9]">
+            ← Back to site
+          </Link>
+          <span>© {new Date().getFullYear()}</span>
         </div>
       </div>
     </div>

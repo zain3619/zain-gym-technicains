@@ -108,7 +108,7 @@ export default function VideoCarousel({ videos }) {
                   />
                 ) : (
                   <img
-                    src={video.thumbnailUrl || "/hero-gym.png"}
+                    src={video.thumbnailUrl || "/equipment-cardio-1.webp"}
                     alt={video.title}
                     className="h-full w-full object-cover opacity-60"
                   />

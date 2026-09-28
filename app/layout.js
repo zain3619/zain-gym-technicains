@@ -83,12 +83,23 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="section-snap bg-[#050505]" suppressHydrationWarning>
+      <head>
+        <link
+          rel="preload"
+          href="/gym-hero-bg.mp4"
+          as="video"
+          type="video/mp4"
+        />
+        <link rel="preload" href="/about-team.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/hero-gym.webp" as="image" type="image/webp" />
+      </head>
       <body
         className={`${syne.variable} ${manrope.variable} ${poppins.variable} bg-[#050505] font-body antialiased`}
         suppressHydrationWarning
       >
         <div
           aria-hidden
+          suppressHydrationWarning
           className="page-canvas pointer-events-none fixed inset-0 -z-50 bg-[#050505]"
         />
         <ExperienceProviders>{children}</ExperienceProviders>

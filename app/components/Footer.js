@@ -16,7 +16,7 @@ const FALLBACK_SOCIAL = {
   linkedin: "",
 };
 
-export default function Footer() {
+export default function Footer({ showHero = true }) {
   const [settings, setSettings] = useState({
     phone: BUSINESS_CONTACT.phone,
     email: BUSINESS_CONTACT.email,
@@ -73,34 +73,50 @@ export default function Footer() {
     <footer className="relative z-[80] overflow-hidden border-t border-white/8 bg-[#050505] text-[#F5F5F5]">
       <div className="grain-overlay opacity-[0.05]" />
 
-      <div className="relative z-10 mx-auto max-w-[1600px] px-5 pb-10 pt-24 md:px-10 md:pt-32 lg:px-14">
-        <p className="scene-label mb-6">Final Scene</p>
-        <h2 className="display-xl max-w-5xl text-[clamp(3rem,10vw,8rem)] text-[#F5F5F5]">
-          Let&apos;s
-          <br />
-          Get
-          <br />
-          Moving.
-        </h2>
+      <div
+        className={`relative z-10 mx-auto max-w-[1600px] px-5 pb-10 md:px-10 lg:px-14 ${
+          showHero ? "pt-24 md:pt-32" : "pt-14 md:pt-16"
+        }`}
+      >
+        {showHero ? (
+          <>
+            <p className="scene-label mb-6">Contact</p>
+            <h2 className="hero-title display-xl max-w-5xl text-[clamp(2.2rem,8vw,8rem)] text-[#F5F5F5]">
+              Get in
+              <br />
+              touch.
+            </h2>
 
-        <p className="mt-8 max-w-xl text-sm leading-relaxed text-[#A0A0A0] md:text-base">
-          {DEFAULT_DESCRIPTION}
-        </p>
+            <p className="mt-8 max-w-xl text-sm leading-relaxed text-[#A0A0A0] md:text-base">
+              {DEFAULT_DESCRIPTION}
+            </p>
 
-        <div className="mt-10 flex flex-wrap gap-4">
-          <Link href="/contact" className="btn-silver-fill" data-cursor="CONTACT">
-            Start a Project
-          </Link>
-          <a
-            href={`tel:${settings.phone.replace(/\s+/g, "")}`}
-            className="btn-silver"
-            data-cursor="CALL"
-          >
-            {settings.phone}
-          </a>
-        </div>
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Link
+                href="/contact"
+                className="btn-silver-fill"
+                data-cursor="CONTACT"
+              >
+                Start a Project
+              </Link>
+              <a
+                href={`tel:${settings.phone.replace(/\s+/g, "")}`}
+                className="btn-silver"
+                data-cursor="CALL"
+              >
+                {settings.phone}
+              </a>
+            </div>
+          </>
+        ) : null}
 
-        <div className="mt-24 grid gap-12 border-t border-white/8 pt-14 md:grid-cols-2 lg:grid-cols-4">
+        <div
+          className={`grid gap-12 md:grid-cols-2 lg:grid-cols-4 ${
+            showHero
+              ? "mt-24 border-t border-white/8 pt-14"
+              : "border-t border-white/8 pt-10"
+          }`}
+        >
           <div>
             <p className="font-display text-2xl font-bold uppercase tracking-[-0.03em]">
               {COMPANY_NAME}
@@ -185,7 +201,7 @@ export default function Footer() {
 
         <div className="mt-16 flex flex-col gap-3 border-t border-white/8 pt-8 text-[11px] uppercase tracking-[0.18em] text-[#A0A0A0] md:flex-row md:items-center md:justify-between">
           <p>
-            © {new Date().getFullYear()} {settings.footerText}
+            © 2026 {settings.footerText}
           </p>
           <p className="text-[#BDBDBD]">{COMPANY_NAME}</p>
         </div>

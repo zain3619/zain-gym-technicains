@@ -1,15 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import toast from "react-hot-toast";
 import MediaImage from "./ui/MediaImage";
 import { BUSINESS_ADDRESS, BUSINESS_CONTACT, COMPANY_NAME } from "../lib/seo";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const contactCards = [
   {
@@ -78,11 +74,6 @@ const faqCards = [
 ];
 
 export default function Contact() {
-  const rootRef = useRef(null);
-  const heroRef = useRef(null);
-  const heroMediaRef = useRef(null);
-  const heroCopyRef = useRef(null);
-
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -109,79 +100,37 @@ export default function Contact() {
       budgetRange: Yup.string().required("Budget range is required"),
       message: Yup.string()
         .min(10, "Message must be at least 10 characters")
+        .max(300, "Message cannot exceed 300 characters")
         .required("Message is required"),
     }),
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       setSubmitting(true);
       try {
-        await fetch("/api/contact", {
+        const response = await fetch("/api/contact", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(values),
         });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to send");
+        }
 
-        await fetch("/api/contact", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
-        });
-
-        alert(
-          "Thank you! Your message has been sent successfully. Our team will get back to you shortly."
+        toast.success(
+          "Thank you! Your message has been sent. Our team will get back to you shortly."
         );
         resetForm();
       } catch (err) {
         console.error("Contact Form error:", err);
-        alert("Thank you! Your message has been sent successfully.");
-        resetForm();
+        toast.error(
+          err.message ||
+            "Something went wrong. Please try again or call us directly."
+        );
       } finally {
         setSubmitting(false);
       }
     },
   });
-
-  useEffect(() => {
-    const root = rootRef.current;
-    const hero = heroRef.current;
-    if (!root || !hero) return undefined;
-
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    const ctx = gsap.context(() => {
-      if (reduceMotion) return;
-
-      // As next panel covers the hero, hero scales down & fades behind
-      gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: hero,
-            start: "top top",
-            end: "bottom top",
-            scrub: 0.4,
-          },
-        })
-        .to(
-          heroMediaRef.current,
-          { scale: 1.12, yPercent: 8, ease: "none" },
-          0
-        )
-        .to(
-          heroCopyRef.current,
-          { y: -80, opacity: 0.25, ease: "none" },
-          0
-        );
-    }, root);
-
-    const refresh = () => ScrollTrigger.refresh();
-    const t = window.setTimeout(refresh, 400);
-
-    return () => {
-      window.clearTimeout(t);
-      ctx.revert();
-    };
-  }, []);
 
   const inputClassName = (field) =>
     `h-13 w-full border bg-[#0A0A0A] px-4 text-[14px] text-[#F5F5F5] outline-none transition-colors placeholder:text-[#A0A0A0] ${
@@ -191,87 +140,26 @@ export default function Contact() {
     }`;
 
   return (
-    <div ref={rootRef} className="bg-[#050505] text-[#F5F5F5]">
-      {/* ── SCENE 01: Sticky hero (stays, next panel slides over it) ── */}
+    <div className="bg-[#050505] text-[#F5F5F5]">
+      {/* Section 1 — Form first (no hero) */}
       <section
-        ref={heroRef}
-        className="relative z-[1] h-screen overflow-hidden bg-[#050505]"
+        id="contact-form"
+        className="relative z-[2] min-h-screen border-b border-white/10 bg-[#080808] pt-24 md:pt-28"
       >
-        <div className="absolute inset-0">
-          <div
-            ref={heroMediaRef}
-            className="absolute inset-0 will-change-transform"
-          >
-            <MediaImage
-              src="/contact-hero.png"
-              alt={`${COMPANY_NAME} contact`}
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover"
-            />
-          </div>
-          <div className="cinema-overlay" />
-          <div className="vignette-overlay" />
-          <div className="grain-overlay" />
-        </div>
-
-        <div
-          ref={heroCopyRef}
-          className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-end px-5 pb-16 pt-28 will-change-transform md:px-10 md:pb-24 lg:px-14"
-        >
-          <p className="scene-label mb-6">Contact Us</p>
-          <h1 className="display-xl max-w-4xl text-[clamp(3rem,10vw,8rem)] text-[#F5F5F5]">
-            Let&apos;s Build Your
-            <br />
-            Dream Gym
-          </h1>
-          <p className="mt-6 max-w-xl text-sm leading-relaxed text-[#D8D8D8] md:text-base">
-            Have a project in mind? Reach out to our experts for a free
-            consultation. We&apos;ll help you plan, equip, and build a gym that
-            delivers results.
-          </p>
-          <div className="mt-10 flex flex-wrap gap-4">
-            <a href="#contact-form" className="btn-silver-fill" data-cursor="OPEN">
-              Send Inquiry
-            </a>
-            <a
-              href={`tel:${BUSINESS_CONTACT.phone.replace(/\s+/g, "")}`}
-              className="btn-silver"
-              data-cursor="CALL"
-            >
-              Book Consultation
-            </a>
-          </div>
-
-          <div className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-3 md:flex">
-            <span className="text-[9px] font-semibold uppercase tracking-[0.35em] text-[#A0A0A0]">
-              Scroll
-            </span>
-            <span className="h-10 w-px overflow-hidden bg-white/15">
-              <span className="block h-full w-full origin-top animate-[scrollLine_1.6s_ease-in-out_infinite] bg-[#D9D9D9]" />
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* ── SCENE 02: Form panel slides UP over hero ── */}
-      <section className="relative z-[2] min-h-screen border-t border-white/10 bg-[#080808] shadow-[0_-40px_80px_rgba(0,0,0,0.55)]">
-        <div className="mx-auto max-w-[1600px] px-5 py-20 md:px-10 md:py-28 lg:px-14">
-          <div className="mb-12 flex items-end justify-between gap-6 border-b border-white/8 pb-8">
-            <div>
-              <p className="scene-label mb-4">02 — Inquiry</p>
-              <h2 className="display-xl text-[clamp(2rem,5vw,4.5rem)] text-[#F5F5F5]">
-                Send Us A Message
-              </h2>
-            </div>
-            <p className="hidden max-w-xs text-right text-xs uppercase tracking-[0.18em] text-[#A0A0A0] md:block">
-              Scroll covers the hero
+        <div className="mx-auto max-w-[1600px] px-5 py-12 md:px-10 md:py-20 lg:px-14">
+          <div className="mb-10 border-b border-white/8 pb-8 md:mb-12">
+            <p className="scene-label mb-3 md:mb-4">Contact · Inquiry</p>
+            <h1 className="display-xl max-w-3xl text-[clamp(1.75rem,5vw,4.5rem)] text-[#F5F5F5]">
+              Send Us A Message
+            </h1>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-[#A0A0A0] md:text-base">
+              Have a project in mind? Reach out — we&apos;ll help you plan,
+              equip, and build a gym that delivers results.
             </p>
           </div>
 
-          <div className="grid gap-16 lg:grid-cols-[1.15fr_0.85fr]">
-            <div id="contact-form">
+          <div className="grid gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
+            <div>
               <form onSubmit={formik.handleSubmit} className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
@@ -390,16 +278,33 @@ export default function Contact() {
                 <div>
                   <textarea
                     name="message"
-                    rows="4"
+                    rows={3}
+                    maxLength={300}
                     placeholder="Your Message"
-                    className={`${inputClassName("message")} h-[120px] resize-none py-3`}
+                    className={`${inputClassName("message")} h-[4.75rem] resize-none py-3`}
                     {...formik.getFieldProps("message")}
                   />
-                  {formik.touched.message && formik.errors.message ? (
-                    <p className="mt-1 text-xs text-red-400">
-                      {formik.errors.message}
+                  <div className="mt-1 flex items-start justify-between gap-3">
+                    {formik.touched.message && formik.errors.message ? (
+                      <p className="text-xs text-red-400">
+                        {formik.errors.message}
+                      </p>
+                    ) : (
+                      <span />
+                    )}
+                    <p
+                      className={`shrink-0 text-xs tabular-nums ${
+                        formik.values.message.length >= 300
+                          ? "text-red-400"
+                          : formik.values.message.length > 0 &&
+                              formik.values.message.length < 10
+                            ? "text-amber-400"
+                            : "text-[#A0A0A0]"
+                      }`}
+                    >
+                      {formik.values.message.length}/300
                     </p>
-                  ) : null}
+                  </div>
                 </div>
 
                 <button
@@ -422,7 +327,7 @@ export default function Contact() {
                 <a
                   key={title}
                   href={href}
-                  className="group block border-b border-white/10 py-6 transition-colors hover:bg-white/[0.02]"
+                  className="group block border-b border-white/10 py-5 transition-colors hover:bg-white/[0.02] md:py-6"
                   data-cursor="OPEN"
                 >
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#BDBDBD]">
@@ -441,29 +346,29 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* ── SCENE 03: Visit — sticky mid layer, next covers it ── */}
-      <section className="relative z-[3] min-h-screen overflow-hidden border-t border-white/10 bg-[#0D0D0D]">
-        <div className="mx-auto grid min-h-screen max-w-[1600px] lg:grid-cols-2">
-          <div className="flex flex-col justify-center px-5 py-20 md:px-10 lg:px-14">
-            <p className="scene-label mb-4">03 — Visit</p>
-            <h2 className="display-xl text-[clamp(2.2rem,5.5vw,5rem)] text-[#F5F5F5]">
+      {/* Section 2 — Visit + FAQ */}
+      <section className="relative z-[3] border-t border-white/10 bg-[#0D0D0D]">
+        <div className="mx-auto grid max-w-[1600px] lg:grid-cols-2">
+          <div className="flex flex-col justify-center px-5 py-16 md:px-10 md:py-20 lg:px-14">
+            <p className="scene-label mb-3 md:mb-4">Visit</p>
+            <h2 className="display-xl text-[clamp(1.75rem,5vw,4.5rem)] text-[#F5F5F5]">
               Let&apos;s Meet
               <br />
               in Person
             </h2>
-            <p className="mt-6 max-w-md text-sm leading-relaxed text-[#A0A0A0] md:text-base">
-              Our head office is located in Lahore. You&apos;re welcome to visit
-              us and discuss your gym project in detail with our experts.
+            <p className="mt-5 max-w-md text-sm leading-relaxed text-[#A0A0A0] md:mt-6 md:text-base">
+              Our head office is in Lahore. Visit us to discuss your gym project
+              with our experts.
             </p>
             <a
               href="https://maps.google.com/?q=Lahore+Pakistan"
-              className="btn-silver mt-10 w-fit"
+              className="btn-silver mt-8 w-fit md:mt-10"
               data-cursor="OPEN"
             >
               Get Directions
             </a>
           </div>
-          <div className="relative min-h-[50dvh] lg:min-h-full">
+          <div className="relative min-h-[42dvh] lg:min-h-[70dvh]">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3401.61113045232!2d74.3315!3d31.5204!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzHCsDMxJzEzLjQiTiA3NMKwMTknNTMuNCJF!5e0!3m2!1sen!2spk!4v1620000000000!5m2!1sen!2spk"
               width="100%"
@@ -472,8 +377,6 @@ export default function Contact() {
                 border: 0,
                 position: "absolute",
                 inset: 0,
-                filter:
-                  "grayscale(1) invert(0.94) contrast(1.05) brightness(0.55)",
               }}
               allowFullScreen=""
               loading="lazy"
@@ -481,23 +384,20 @@ export default function Contact() {
             />
           </div>
         </div>
-      </section>
 
-      {/* ── SCENE 04: FAQ + CTA slides over visit ── */}
-      <section className="relative z-[4] min-h-screen border-t border-white/10 bg-[#050505] shadow-[0_-40px_80px_rgba(0,0,0,0.55)]">
-        <div className="mx-auto max-w-[1600px] px-5 py-20 md:px-10 md:py-28 lg:px-14">
-          <p className="scene-label mb-4">04 — Help</p>
-          <h2 className="display-xl mb-14 text-[clamp(2rem,5vw,4rem)] text-[#F5F5F5]">
-            We&apos;re Here To Help
+        <div className="mx-auto max-w-[1600px] border-t border-white/10 px-5 py-16 md:px-10 md:py-20 lg:px-14">
+          <p className="scene-label mb-3 md:mb-4">FAQ</p>
+          <h2 className="display-xl mb-10 text-[clamp(1.75rem,5vw,4rem)] text-[#F5F5F5] md:mb-14">
+            Common Questions
           </h2>
 
           <div className="grid gap-0 border-t border-white/10 md:grid-cols-2">
             {faqCards.map(({ question, answer }) => (
               <div
                 key={question}
-                className="border-b border-white/10 py-8 md:pr-10"
+                className="border-b border-white/10 py-7 md:pr-10"
               >
-                <h3 className="font-display text-xl font-bold uppercase tracking-[-0.02em] text-[#F5F5F5]">
+                <h3 className="font-display text-lg font-bold uppercase tracking-[-0.02em] text-[#F5F5F5] md:text-xl">
                   {question}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-[#A0A0A0]">
@@ -507,28 +407,26 @@ export default function Contact() {
             ))}
           </div>
 
-          <div className="relative mt-20 overflow-hidden border border-white/10">
+          <div className="relative mt-14 overflow-hidden border border-white/10 md:mt-20">
             <div className="absolute inset-0">
               <MediaImage
-                src="/contact-hero.png"
+                src="/contact-hero.webp"
                 alt=""
                 fill
                 sizes="100vw"
                 className="object-cover opacity-35"
+                fallback="/contact-hero.webp"
               />
               <div className="absolute inset-0 bg-[#050505]/78" />
             </div>
-            <div className="relative z-10 flex flex-col gap-8 px-6 py-14 md:flex-row md:items-end md:justify-between md:px-12 md:py-20">
+            <div className="relative z-10 flex flex-col gap-6 px-5 py-12 md:flex-row md:items-end md:justify-between md:gap-8 md:px-12 md:py-16">
               <div className="max-w-xl">
-                <p className="scene-label mb-4">
-                  Ready To Transform Your Space?
-                </p>
-                <h2 className="display-xl text-[clamp(2rem,5vw,4rem)] text-[#F5F5F5]">
-                  Ready To Start Your Fitness Project?
+                <h2 className="display-xl text-[clamp(1.65rem,4.5vw,3.5rem)] text-[#F5F5F5]">
+                  Start a Gym Project
                 </h2>
-                <p className="mt-4 text-sm leading-relaxed text-[#D8D8D8] md:text-base">
-                  From concept to completion, we&apos;ll build a gym that
-                  inspires and delivers results.
+                <p className="mt-3 text-sm leading-relaxed text-[#D8D8D8] md:mt-4 md:text-base">
+                  Design, build, and equipment supply — from first layout to
+                  launch.
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row">

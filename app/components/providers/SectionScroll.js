@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 
 /**
- * One flick → exactly one section.
- * After the last panel, native scroll continues into the footer.
+ * One deliberate flick → exactly one panel.
+ * Trackpad inertia must NOT chain into the next section.
  */
 export default function SectionScroll() {
   useEffect(() => {
@@ -26,35 +26,47 @@ export default function SectionScroll() {
     let lastWheelAt = 0;
     let touchY = 0;
     let touchMoved = false;
+    let pointsCache = [];
+    let pointsAt = 0;
 
-    const ANIM_MS = 400;
-    const INERTIA_LOCK_MS = 260;
-    const QUIET_MS = 140;
-    const THRESHOLD = 64;
-    const ACTIVE = 36;
+    const ANIM_MS = 420;
+    /** After landing, ignore wheels so trackpad inertia can't skip ahead */
+    const SETTLE_MS = 380;
+    /** No-wheel gap required before the next gesture is accepted */
+    const QUIET_MS = 220;
+    const THRESHOLD = 60;
+    const TOUCH_MIN = 40;
 
     const panels = () =>
       Array.from(document.querySelectorAll("[data-stack-panel]"));
 
+    const measurePoints = () => {
+      const els = panels();
+      const pts = els.map((el) => {
+        const rectTop = el.getBoundingClientRect().top + window.scrollY;
+        return Math.max(0, Math.round(rectTop));
+      });
+      pointsCache = pts;
+      pointsAt = performance.now();
+      return pts;
+    };
+
     const getPoints = () => {
-      const y = window.scrollY;
-      return panels().map((el) =>
-        Math.max(0, el.getBoundingClientRect().top + y)
-      );
+      if (performance.now() - pointsAt > 120 || !pointsCache.length) {
+        return measurePoints();
+      }
+      return pointsCache;
     };
 
     const nearestIndex = () => {
       const pts = getPoints();
       if (!pts.length) return 0;
       const y = window.scrollY;
+      const gate = y + window.innerHeight * 0.28;
       let i = 0;
-      let best = Infinity;
       for (let n = 0; n < pts.length; n++) {
-        const d = Math.abs(y - pts[n]);
-        if (d < best) {
-          best = d;
-          i = n;
-        }
+        if (pts[n] <= gate + 1) i = n;
+        else break;
       }
       return i;
     };
@@ -79,25 +91,32 @@ export default function SectionScroll() {
       return 1 - Math.pow(1 - x, 3);
     };
 
-    const scheduleQuietClear = () => {
+    const armQuiet = () => {
+      needQuiet = true;
+      acc = 0;
       window.clearTimeout(quiet);
       quiet = window.setTimeout(() => {
-        if (performance.now() - lastWheelAt >= QUIET_MS - 8) {
+        // Only release quiet if wheels truly stopped
+        if (performance.now() - lastWheelAt >= QUIET_MS - 10) {
           needQuiet = false;
           acc = 0;
+        } else {
+          armQuiet();
         }
       }, QUIET_MS);
     };
 
     const finish = (toIndex) => {
+      const pts = measurePoints();
+      const target = pts[toIndex] ?? window.scrollY;
+      window.scrollTo(0, target);
       targetIndex = toIndex;
       animating = false;
       acc = 0;
-      needQuiet = true;
-      lockedUntil = performance.now() + INERTIA_LOCK_MS;
+      lockedUntil = performance.now() + SETTLE_MS;
       clearMotionClasses();
       markPanels(toIndex, toIndex);
-      scheduleQuietClear();
+      armQuiet();
     };
 
     const animateTo = (target, fromIndex, toIndex) => {
@@ -114,7 +133,8 @@ export default function SectionScroll() {
       animating = true;
       acc = 0;
       needQuiet = true;
-      lockedUntil = performance.now() + ANIM_MS + INERTIA_LOCK_MS;
+      targetIndex = toIndex;
+      lockedUntil = performance.now() + ANIM_MS + SETTLE_MS;
       root.classList.add("is-section-moving");
       markPanels(fromIndex, toIndex);
 
@@ -132,16 +152,20 @@ export default function SectionScroll() {
       raf = requestAnimationFrame(step);
     };
 
-    const go = (dir, sync = true) => {
+    const go = (dir) => {
       if (!dir) return false;
       if (animating || performance.now() < lockedUntil) return false;
 
-      const pts = getPoints();
+      const pts = measurePoints();
       if (!pts.length) return false;
 
-      if (sync) targetIndex = nearestIndex();
+      const nearTarget =
+        pts[targetIndex] != null &&
+        Math.abs(window.scrollY - pts[targetIndex]) < window.innerHeight * 0.45;
+      const from = nearTarget
+        ? targetIndex
+        : Math.max(0, Math.min(nearestIndex(), pts.length - 1));
 
-      const from = Math.max(0, Math.min(targetIndex, pts.length - 1));
       const next = Math.max(0, Math.min(from + dir, pts.length - 1));
       if (next === from) return false;
 
@@ -149,19 +173,68 @@ export default function SectionScroll() {
       return true;
     };
 
-    window.__zainSectionGo = go;
+    const goToIndex = (index) => {
+      const pts = measurePoints();
+      if (!pts.length) return false;
+      const next = Math.max(0, Math.min(index, pts.length - 1));
+      const from = nearestIndex();
+      if (next === from && Math.abs(window.scrollY - pts[next]) < 2) {
+        targetIndex = next;
+        markPanels(next, next);
+        return true;
+      }
+      needQuiet = false;
+      acc = 0;
+      lockedUntil = 0;
+      animateTo(pts[next], from, next);
+      return true;
+    };
 
-    const ignore = (t) =>
+    const goToId = (id) => {
+      if (!id) return false;
+      const els = panels();
+      const index = els.findIndex((el) => el.id === id);
+      if (index < 0) return false;
+      return goToIndex(index);
+    };
+
+    window.__zainSectionGo = go;
+    window.__zainSectionGoTo = goToIndex;
+    window.__zainSectionGoToId = goToId;
+
+    const ignoreForm = (t) =>
       t instanceof Element &&
-      !!t.closest(
-        "textarea,input,select,[data-lenis-prevent],[data-scroll-ignore]"
+      !!t.closest("textarea,input,select,[data-lenis-prevent]");
+
+    const nestedScrollConsumes = (target, dy) => {
+      if (!(target instanceof Element)) return false;
+      const el = target.closest(
+        "[data-scroll-ignore], .overflow-y-auto, .overflow-y-scroll"
       );
+      if (!el) return false;
+      const max = el.scrollHeight - el.clientHeight;
+      if (max <= 4) return false;
+      if (dy > 0 && el.scrollTop < max - 2) return true;
+      if (dy < 0 && el.scrollTop > 2) return true;
+      return false;
+    };
+
+    const nearTargetIndex = (pts) => {
+      if (
+        pts[targetIndex] != null &&
+        Math.abs(window.scrollY - pts[targetIndex]) < window.innerHeight * 0.45
+      ) {
+        return targetIndex;
+      }
+      return nearestIndex();
+    };
 
     const onWheel = (e) => {
-      if (ignore(e.target)) return;
-
+      if (ignoreForm(e.target)) return;
       const dy = e.deltaY;
-      if (Math.abs(dy) < 5) return;
+      if (Math.abs(dy) < 3) return;
+
+      if (nestedScrollConsumes(e.target, dy)) return;
 
       lastWheelAt = performance.now();
       const pts = getPoints();
@@ -170,12 +243,11 @@ export default function SectionScroll() {
       const y = window.scrollY;
       const lastTop = pts[pts.length - 1];
       const pastLast = y > lastTop + 12;
-      const idx = nearestIndex();
+      const idx = nearTargetIndex(pts);
       const onLast = idx >= pts.length - 1;
 
-      // Already in footer / page tail — native scroll (snap back near last panel).
       if (pastLast) {
-        if (dy < 0 && y - lastTop < window.innerHeight * 0.35) {
+        if (dy < 0 && y - lastTop < window.innerHeight * 0.4) {
           e.preventDefault();
           e.stopPropagation();
           if (!animating && performance.now() >= lockedUntil) {
@@ -188,21 +260,14 @@ export default function SectionScroll() {
         return;
       }
 
-      // Last section + scroll down → release into footer (Pricing / Footer).
+      // Last panel + down → native footer scroll (after settle)
       if (onLast && dy > 0 && !animating) {
-        if (performance.now() < lockedUntil) {
+        if (performance.now() < lockedUntil || needQuiet) {
           e.preventDefault();
           e.stopPropagation();
-          scheduleQuietClear();
+          armQuiet();
           return;
         }
-        if (needQuiet && Math.abs(dy) < ACTIVE) {
-          e.preventDefault();
-          e.stopPropagation();
-          scheduleQuietClear();
-          return;
-        }
-        needQuiet = false;
         acc = 0;
         return;
       }
@@ -210,23 +275,19 @@ export default function SectionScroll() {
       e.preventDefault();
       e.stopPropagation();
 
+      // Swallow everything while tweening / settling — no queue (prevents skip)
       if (animating || performance.now() < lockedUntil) {
-        scheduleQuietClear();
         return;
       }
 
+      // Wait for trackpad inertia to die before accepting the next flick
       if (needQuiet) {
-        if (Math.abs(dy) >= ACTIVE) {
-          needQuiet = false;
-          acc = dy;
-        } else {
-          scheduleQuietClear();
-          return;
-        }
-      } else {
-        if (acc !== 0 && Math.sign(acc) !== Math.sign(dy)) acc = 0;
-        acc += dy;
+        armQuiet();
+        return;
       }
+
+      if (acc !== 0 && Math.sign(acc) !== Math.sign(dy)) acc = 0;
+      acc += dy;
 
       if (Math.abs(acc) < THRESHOLD) return;
       const dir = acc > 0 ? 1 : -1;
@@ -235,7 +296,7 @@ export default function SectionScroll() {
     };
 
     const onKey = (e) => {
-      if (ignore(e.target)) return;
+      if (ignoreForm(e.target)) return;
       let dir = 0;
       if (e.key === "ArrowDown" || e.key === "PageDown") dir = 1;
       else if (e.key === "ArrowUp" || e.key === "PageUp") dir = -1;
@@ -243,18 +304,26 @@ export default function SectionScroll() {
       else return;
 
       const pts = getPoints();
-      const onLast = nearestIndex() >= pts.length - 1;
+      const idx = nearTargetIndex(pts);
+      const onLast = idx >= pts.length - 1;
       const pastLast = pts.length && window.scrollY > pts[pts.length - 1] + 12;
 
       if ((onLast || pastLast) && dir > 0) {
-        // Let page scroll into footer naturally via a nudge.
-        window.scrollBy({ top: Math.min(window.innerHeight * 0.85, 600), left: 0, behavior: "smooth" });
+        if (performance.now() < lockedUntil || needQuiet) {
+          e.preventDefault();
+          return;
+        }
+        window.scrollBy({
+          top: Math.min(window.innerHeight * 0.85, 600),
+          left: 0,
+          behavior: "smooth",
+        });
         e.preventDefault();
         return;
       }
 
       e.preventDefault();
-      needQuiet = false;
+      if (animating || performance.now() < lockedUntil || needQuiet) return;
       acc = 0;
       go(dir);
     };
@@ -264,37 +333,46 @@ export default function SectionScroll() {
       touchMoved = false;
     };
     const onTouchMove = (e) => {
-      if (ignore(e.target)) return;
+      if (ignoreForm(e.target)) return;
       const dy = (e.touches[0]?.clientY ?? touchY) - touchY;
       if (Math.abs(dy) <= 8) return;
+
+      if (nestedScrollConsumes(e.target, -dy)) return;
 
       touchMoved = true;
       const pts = getPoints();
       const y = window.scrollY;
       const lastTop = pts[pts.length - 1] ?? 0;
       const pastLast = y > lastTop + 12;
-      const onLast = nearestIndex() >= pts.length - 1;
+      const onLast = nearTargetIndex(pts) >= pts.length - 1;
 
-      // Allow native touch scroll in footer / off the last panel downward.
       if (pastLast) return;
-      if (onLast && dy < 0 && performance.now() >= lockedUntil) return;
+      if (onLast && dy < 0 && performance.now() >= lockedUntil && !needQuiet)
+        return;
 
       e.preventDefault();
     };
     const onTouchEnd = (e) => {
-      if (ignore(e.target) || !touchMoved) return;
+      if (ignoreForm(e.target) || !touchMoved) return;
       const dy = touchY - (e.changedTouches[0]?.clientY ?? touchY);
-      if (Math.abs(dy) < 36) return;
+      if (Math.abs(dy) < TOUCH_MIN) return;
 
       const pts = getPoints();
       const y = window.scrollY;
       const lastTop = pts[pts.length - 1] ?? 0;
       if (y > lastTop + 12) return;
-      if (nearestIndex() >= pts.length - 1 && dy > 0) return;
+      if (nearTargetIndex(pts) >= pts.length - 1 && dy > 0) return;
 
-      needQuiet = false;
+      if (animating || performance.now() < lockedUntil || needQuiet) return;
       acc = 0;
       go(dy > 0 ? 1 : -1);
+    };
+
+    const onResize = () => {
+      measurePoints();
+      if (!animating && pointsCache[targetIndex] != null) {
+        window.scrollTo(0, pointsCache[targetIndex]);
+      }
     };
 
     window.addEventListener("wheel", onWheel, { passive: false, capture: true });
@@ -311,10 +389,17 @@ export default function SectionScroll() {
       passive: true,
       capture: true,
     });
+    window.addEventListener("resize", onResize);
 
     const boot = window.setTimeout(() => {
-      targetIndex = nearestIndex();
-      const pts = getPoints();
+      const hashId = window.location.hash.replace(/^#/, "");
+      const els = panels();
+      const hashIndex = hashId
+        ? els.findIndex((el) => el.id === hashId)
+        : -1;
+      measurePoints();
+      targetIndex = hashIndex >= 0 ? hashIndex : nearestIndex();
+      const pts = pointsCache;
       if (pts[targetIndex] != null) {
         window.scrollTo(0, pts[targetIndex]);
         markPanels(targetIndex, targetIndex);
@@ -323,6 +408,8 @@ export default function SectionScroll() {
 
     return () => {
       delete window.__zainSectionGo;
+      delete window.__zainSectionGoTo;
+      delete window.__zainSectionGoToId;
       window.clearTimeout(boot);
       window.clearTimeout(quiet);
       cancelAnimationFrame(raf);
@@ -334,6 +421,7 @@ export default function SectionScroll() {
       window.removeEventListener("touchstart", onTouchStart, true);
       window.removeEventListener("touchmove", onTouchMove, true);
       window.removeEventListener("touchend", onTouchEnd, true);
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 

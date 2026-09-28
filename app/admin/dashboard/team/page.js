@@ -6,9 +6,12 @@ import {
   Upload, Users, Share2, Link
 } from "lucide-react";
 import toast from "react-hot-toast";
+import ConfirmModal from "../../../components/ui/ConfirmModal";
 
 export default function TeamManagementPage() {
   const [team, setTeam] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -106,20 +109,26 @@ export default function TeamManagementPage() {
     setModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to remove this staff profile?")) return;
-    
+  const askDelete = (id) => {
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget;
+    setDeleting(true);
     const token = localStorage.getItem("admin_token");
     try {
       const response = await fetch(`/api/team/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
         toast.success("Roster profile deleted");
+        setDeleteTarget(null);
         fetchTeam();
       } else {
         const data = await response.json();
@@ -127,6 +136,8 @@ export default function TeamManagementPage() {
       }
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -183,18 +194,19 @@ export default function TeamManagementPage() {
   };
 
   return (
+    <>
     <div className="space-y-6">
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-black uppercase text-white tracking-wider">
-            Team & Staff <span className="text-[#82cd2b]">Roster CMS</span>
+            Team & Staff <span className="text-[#D9D9D9]">Roster CMS</span>
           </h1>
           <p className="text-xs text-gray-500 mt-1">Configure profile details of master assemblers, logistics lead, and gym coaches.</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="flex h-10 items-center gap-2 rounded-lg bg-[#82cd2b] text-black px-4.5 text-xs font-black uppercase tracking-wider hover:bg-[#97ff02] active:scale-95 transition-all cursor-pointer shadow-md"
+          className="flex h-10 items-center gap-2 rounded-lg bg-[#D9D9D9] text-black px-4.5 text-xs font-black uppercase tracking-wider hover:bg-[#F5F5F5] active:scale-95 transition-all cursor-pointer shadow-md"
         >
           <Plus className="h-4 w-4" />
           ADD TEAM MEMBER
@@ -203,12 +215,12 @@ export default function TeamManagementPage() {
 
       {loading ? (
         <div className="flex h-[40vh] w-full items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#82cd2b]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#D9D9D9]" />
         </div>
       ) : team.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {team.map((member) => (
-            <div key={member._id} className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-4 flex flex-col justify-between group hover:border-[#82cd2b]/30 transition-all duration-300 relative shadow-xl">
+            <div key={member._id} className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-4 flex flex-col justify-between group hover:border-[#D9D9D9]/30 transition-all duration-300 relative shadow-xl">
               <div>
                 <div className="relative aspect-square rounded-xl overflow-hidden bg-black border border-white/5 group-hover:scale-[1.01] transition-transform duration-300">
                   <img 
@@ -224,7 +236,7 @@ export default function TeamManagementPage() {
                       <Edit2 className="h-3.5 w-3.5" />
                     </button>
                     <button 
-                      onClick={() => handleDelete(member._id)}
+                      onClick={() => askDelete(member._id)}
                       className="h-8 w-8 rounded-lg bg-black/85 hover:bg-red-500 border border-white/10 hover:border-red-500 text-gray-300 hover:text-white flex items-center justify-center active:scale-90 transition-all cursor-pointer"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -234,7 +246,7 @@ export default function TeamManagementPage() {
 
                 <div className="mt-3 px-1">
                   <h4 className="text-sm font-bold text-white uppercase tracking-wider">{member.name}</h4>
-                  <span className="text-[10px] text-[#82cd2b] font-bold uppercase tracking-wider block mt-0.5">{member.role}</span>
+                  <span className="text-[10px] text-[#D9D9D9] font-bold uppercase tracking-wider block mt-0.5">{member.role}</span>
                   {member.experience && (
                     <span className="text-[10px] text-gray-500 font-bold block mt-1">Exp: {member.experience}</span>
                   )}
@@ -264,7 +276,7 @@ export default function TeamManagementPage() {
             
             <div className="flex justify-between items-center pb-4 border-b border-white/5 mb-5 shrink-0">
               <h3 className="text-xs font-black uppercase text-white tracking-widest flex items-center gap-2">
-                <Users className="h-4.5 w-4.5 text-[#82cd2b]" />
+                <Users className="h-4.5 w-4.5 text-[#D9D9D9]" />
                 {editId ? "Modify Staff Profile" : "Register Team Member"}
               </h3>
               <button onClick={() => setModalOpen(false)} className="p-1 text-gray-400 hover:text-white">
@@ -280,7 +292,7 @@ export default function TeamManagementPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Muhammad Qaiser"
-                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#82cd2b]/55 transition-all"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#D9D9D9]/55 transition-all"
                   required
                 />
               </div>
@@ -291,7 +303,7 @@ export default function TeamManagementPage() {
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
-                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all cursor-pointer"
+                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all cursor-pointer"
                     required
                   >
                     <option value="" disabled>Select Role / Designation</option>
@@ -309,14 +321,14 @@ export default function TeamManagementPage() {
                     value={experience}
                     onChange={(e) => setExperience(e.target.value)}
                     placeholder="e.g. 14 Years"
-                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#82cd2b]/55 transition-all"
+                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white placeholder:text-gray-600 outline-none focus:border-[#D9D9D9]/55 transition-all"
                   />
                 </div>
               </div>
 
               {/* Social parameters */}
               <div className="p-4 rounded-xl border border-white/5 bg-black/45 space-y-3">
-                <span className="text-[9px] text-[#82cd2b] font-black uppercase tracking-wider block mb-1">Social Handles Links</span>
+                <span className="text-[9px] text-[#D9D9D9] font-black uppercase tracking-wider block mb-1">Social Handles Links</span>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[9px] text-gray-500 uppercase font-bold mb-1">Facebook</label>
@@ -325,7 +337,7 @@ export default function TeamManagementPage() {
                       value={facebook}
                       onChange={(e) => setFacebook(e.target.value)}
                       placeholder="https://facebook.com/username"
-                      className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                      className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                     />
                   </div>
                   <div>
@@ -335,7 +347,7 @@ export default function TeamManagementPage() {
                       value={instagram}
                       onChange={(e) => setInstagram(e.target.value)}
                       placeholder="https://instagram.com/username"
-                      className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                      className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                     />
                   </div>
                   <div>
@@ -345,7 +357,7 @@ export default function TeamManagementPage() {
                       value={twitter}
                       onChange={(e) => setTwitter(e.target.value)}
                       placeholder="https://twitter.com/username"
-                      className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                      className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                     />
                   </div>
                   <div>
@@ -355,7 +367,7 @@ export default function TeamManagementPage() {
                       value={linkedin}
                       onChange={(e) => setLinkedin(e.target.value)}
                       placeholder="https://linkedin.com/in/username"
-                      className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                      className="h-10 w-full rounded-lg border border-white/10 bg-black px-3.5 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                     />
                   </div>
                 </div>
@@ -373,7 +385,7 @@ export default function TeamManagementPage() {
                     />
                   </div>
                 ) : null}
-                <label className="flex items-center justify-center gap-2 border border-dashed border-white/15 hover:border-[#82cd2b]/40 rounded-lg h-11 bg-black/35 hover:bg-black/60 transition-all cursor-pointer">
+                <label className="flex items-center justify-center gap-2 border border-dashed border-white/15 hover:border-[#D9D9D9]/40 rounded-lg h-11 bg-black/35 hover:bg-black/60 transition-all cursor-pointer">
                   <Upload className="h-4 w-4 text-gray-400" />
                   <span className="text-[10px] font-extrabold uppercase text-white tracking-wider">Choose Image file</span>
                   <input
@@ -398,7 +410,7 @@ export default function TeamManagementPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 h-11 rounded-lg bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#97ff02] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
+                  className="flex-1 h-11 rounded-lg bg-[#D9D9D9] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#F5F5F5] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
                 >
                   {submitting ? (
                     <Loader2 className="h-4.5 w-4.5 animate-spin text-black" />
@@ -417,5 +429,17 @@ export default function TeamManagementPage() {
       )}
 
     </div>
+
+      <ConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Delete this team member?"
+        message="This roster profile will be permanently removed."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => !deleting && setDeleteTarget(null)}
+      />
+    </>
   );
 }

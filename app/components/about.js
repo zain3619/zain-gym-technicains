@@ -16,7 +16,7 @@ const DEFAULT_DATA = {
   experienceYears: "14+",
   gymsSetup: "30+",
   satisfactionRate: "100%",
-  showcaseImage: "/about-team.png",
+  showcaseImage: "/about-team.webp",
 };
 
 export default function About() {
@@ -40,7 +40,7 @@ export default function About() {
             : "14+",
           gymsSetup: resData.gymsBuilt ? `${resData.gymsBuilt}+` : "30+",
           satisfactionRate: resData.clientSatisfaction || "100%",
-          showcaseImage: resData.imageUrl || "/about-team.png",
+          showcaseImage: resData.imageUrl || "/about-team.webp",
         });
       } catch {
         // keep defaults
@@ -96,8 +96,9 @@ export default function About() {
               alt="About Zain Gym Technicians"
               fill
               sizes="100vw"
-              className="object-cover"
-              fallback="/about-team.png"
+              priority
+              className="object-cover object-center"
+              fallback="/about-team.webp"
             />
           </div>
           <div className="absolute inset-0 bg-[#050505]/72" />
@@ -105,22 +106,22 @@ export default function About() {
           <div className="grain-overlay" />
         </div>
 
-        <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-end px-5 py-20 md:px-10 md:py-28 lg:px-14">
-          <p className="scene-label mb-6">01 — {data.title}</p>
+        <div className="panel-copy panel-copy--center">
+          <p className="scene-label mb-4 md:mb-6">01 — {data.title}</p>
           <div className="max-w-5xl">
             {headingLines.map((line, lineIndex) => (
               <h2
                 key={lineIndex}
-                className="display-xl text-[clamp(2.4rem,7vw,6.5rem)] text-[#F5F5F5]"
+                className="display-xl text-[clamp(1.75rem,5.5vw,6.5rem)] text-[#F5F5F5]"
               >
                 {line}
               </h2>
             ))}
           </div>
-          <p className="mt-8 max-w-2xl text-sm leading-relaxed text-[#D8D8D8] md:mt-10 md:text-base">
+          <p className="mt-5 max-w-2xl text-sm leading-relaxed text-[#D8D8D8] md:mt-10 md:text-base">
             {data.description}
           </p>
-          <div className="mt-10 grid max-w-3xl grid-cols-3 gap-3 border-t border-white/10 pt-6 sm:gap-6 sm:pt-8 md:mt-16 md:gap-10">
+          <div className="mt-8 grid max-w-3xl grid-cols-3 gap-3 border-t border-white/10 pt-5 sm:gap-6 sm:pt-8 md:mt-16 md:gap-10">
             {stats.map((stat) => (
               <div key={stat.label} className="min-w-0">
                 <p className="font-poppins text-[1.65rem] font-bold leading-none tracking-tight text-[#D9D9D9] sm:text-3xl md:text-5xl">

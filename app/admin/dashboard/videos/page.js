@@ -6,9 +6,12 @@ import {
   Upload, Film, Sparkles, ArrowUpDown
 } from "lucide-react";
 import toast from "react-hot-toast";
+import ConfirmModal from "../../../components/ui/ConfirmModal";
 
 export default function VideoManagementPage() {
   const [videos, setVideos] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -86,20 +89,26 @@ export default function VideoManagementPage() {
     setModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to permanently delete this video?")) return;
-    
+  const askDelete = (id) => {
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget;
+    setDeleting(true);
     const token = localStorage.getItem("admin_token");
     try {
       const response = await fetch(`/api/videos/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
         toast.success("Video deleted successfully!");
+        setDeleteTarget(null);
         fetchVideos();
       } else {
         const data = await response.json();
@@ -107,6 +116,8 @@ export default function VideoManagementPage() {
       }
     } catch (error) {
       toast.error(error.message || "Failed to delete video");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -165,16 +176,17 @@ export default function VideoManagementPage() {
   };
 
   return (
+    <>
     <div className="p-6 md:p-10 space-y-8 max-w-7xl mx-auto">
       
       {/* Title block */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/5 pb-6">
         <div>
-          <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.25em] text-[#82cd2b] mb-1">
+          <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.25em] text-[#D9D9D9] mb-1">
             <Sparkles className="h-3.5 w-3.5" /> Core CMS
           </span>
           <h1 className="text-2xl md:text-3xl font-black uppercase text-white tracking-tight leading-none">
-            Video Section <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#82cd2b] to-white">Gallery</span>
+            Video Section <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D9D9D9] to-white">Gallery</span>
           </h1>
           <p className="text-xs text-gray-500 mt-2">
             Upload and toggle active display videos on the main page.
@@ -183,7 +195,7 @@ export default function VideoManagementPage() {
 
         <button
           onClick={openCreateModal}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-wider hover:bg-[#97ff02] active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-[#82cd2b]/15 self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#D9D9D9] text-black font-extrabold text-xs uppercase tracking-wider hover:bg-[#F5F5F5] active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-[#D9D9D9]/15 self-start sm:self-auto"
         >
           <Plus className="h-4.5 w-4.5 stroke-[3]" /> Add New Video
         </button>
@@ -192,7 +204,7 @@ export default function VideoManagementPage() {
       {/* Main Grid View */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
-          <Loader2 className="h-10 w-10 animate-spin text-[#82cd2b]" />
+          <Loader2 className="h-10 w-10 animate-spin text-[#D9D9D9]" />
           <p className="text-xs text-gray-400">Loading video library...</p>
         </div>
       ) : videos.length === 0 ? (
@@ -210,7 +222,7 @@ export default function VideoManagementPage() {
               key={video._id}
               className={`group relative rounded-2xl overflow-hidden bg-[#0a0a0a] border ${
                 video.isActive ? "border-white/5" : "border-red-500/10 opacity-70"
-              } hover:border-[#82cd2b]/35 shadow-2xl transition-all duration-300`}
+              } hover:border-[#D9D9D9]/35 shadow-2xl transition-all duration-300`}
             >
               {/* Card Media Preview */}
               <div className="relative h-48 w-full bg-black overflow-hidden">
@@ -227,14 +239,14 @@ export default function VideoManagementPage() {
                 
                 {/* Status Indicator */}
                 <div className="absolute top-3 right-3 flex items-center gap-1.5">
-                  <span className={`h-2.5 w-2.5 rounded-full ${video.isActive ? "bg-[#82cd2b]" : "bg-red-500"}`} />
+                  <span className={`h-2.5 w-2.5 rounded-full ${video.isActive ? "bg-[#D9D9D9]" : "bg-red-500"}`} />
                 </div>
               </div>
 
               {/* Description & Caption Info */}
               <div className="p-5 space-y-4">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white group-hover:text-[#82cd2b] transition-colors line-clamp-1 leading-snug">
+                  <h3 className="text-sm font-extrabold text-white group-hover:text-[#D9D9D9] transition-colors line-clamp-1 leading-snug">
                     {video.title}
                   </h3>
                 </div>
@@ -242,19 +254,19 @@ export default function VideoManagementPage() {
                 {/* Footer Controls */}
                 <div className="flex items-center justify-between border-t border-white/5 pt-4">
                   <div className="text-[10px] text-gray-500">
-                    Status: <span className={video.isActive ? "text-[#82cd2b] font-bold" : "text-red-400 font-bold"}>{video.isActive ? "Active" : "Inactive"}</span>
+                    Status: <span className={video.isActive ? "text-[#D9D9D9] font-bold" : "text-red-400 font-bold"}>{video.isActive ? "Active" : "Inactive"}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => openEditModal(video)}
-                      className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-[#82cd2b] hover:bg-white/10 transition-all cursor-pointer"
+                      className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-[#D9D9D9] hover:bg-white/10 transition-all cursor-pointer"
                       title="Edit Video"
                     >
                       <Edit2 className="h-4 w-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(video._id)}
+                      onClick={() => askDelete(video._id)}
                       className="p-2 rounded-lg bg-red-500/5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
                       title="Delete Video"
                     >
@@ -276,7 +288,7 @@ export default function VideoManagementPage() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
               <div className="flex items-center gap-2">
-                <Film className="h-5 w-5 text-[#82cd2b]" />
+                <Film className="h-5 w-5 text-[#D9D9D9]" />
                 <h2 className="text-sm font-extrabold uppercase tracking-widest text-white">
                   {editId ? "Modify Video" : "Register Video"}
                 </h2>
@@ -306,7 +318,7 @@ export default function VideoManagementPage() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. Strength. Discipline. Progress."
-                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-gray-600 focus:border-[#82cd2b] focus:outline-none transition-colors"
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-gray-600 focus:border-[#D9D9D9] focus:outline-none transition-colors"
                   />
                 </div>
 
@@ -315,14 +327,14 @@ export default function VideoManagementPage() {
                   <label className="text-[10px] font-black uppercase tracking-wider text-gray-400">
                     Upload Video File <span className="text-red-400">*</span>
                   </label>
-                  <div className="relative group flex flex-col items-center justify-center border border-dashed border-white/15 hover:border-[#82cd2b]/40 rounded-xl p-6 bg-black cursor-pointer transition-colors">
+                  <div className="relative group flex flex-col items-center justify-center border border-dashed border-white/15 hover:border-[#D9D9D9]/40 rounded-xl p-6 bg-black cursor-pointer transition-colors">
                     <input
                       type="file"
                       accept="video/*"
                       onChange={handleVideoFileChange}
                       className="absolute inset-0 opacity-0 cursor-pointer"
                     />
-                    <Upload className="h-7 w-7 text-gray-500 group-hover:text-[#82cd2b] mb-2" />
+                    <Upload className="h-7 w-7 text-gray-500 group-hover:text-[#D9D9D9] mb-2" />
                     <span className="text-[10px] text-gray-400 text-center truncate w-full">
                       {videoFile ? videoFile.name : "Select or drag Video file"}
                     </span>
@@ -332,7 +344,7 @@ export default function VideoManagementPage() {
                   {/* Video Live Preview */}
                   {(videoPreviewUrl || existingVideoUrl) && (
                     <div className="mt-3 rounded-lg overflow-hidden border border-white/5 bg-black p-2">
-                      <p className="text-[9px] font-bold text-[#82cd2b] mb-1 uppercase">Video Preview:</p>
+                      <p className="text-[9px] font-bold text-[#D9D9D9] mb-1 uppercase">Video Preview:</p>
                       <video
                         src={videoPreviewUrl || existingVideoUrl}
                         controls
@@ -354,7 +366,7 @@ export default function VideoManagementPage() {
                       onChange={(e) => setIsActive(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-white/10 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#82cd2b]"></div>
+                    <div className="w-9 h-5 bg-white/10 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#D9D9D9]"></div>
                   </label>
                 </div>
 
@@ -372,7 +384,7 @@ export default function VideoManagementPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#97ff02] active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-[#82cd2b]/15 disabled:opacity-50 disabled:pointer-events-none"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#D9D9D9] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#F5F5F5] active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-[#D9D9D9]/15 disabled:opacity-50 disabled:pointer-events-none"
                 >
                   {submitting ? (
                     <>
@@ -392,5 +404,17 @@ export default function VideoManagementPage() {
       )}
 
     </div>
+
+      <ConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Delete this video?"
+        message="This video will be permanently removed from the site."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => !deleting && setDeleteTarget(null)}
+      />
+    </>
   );
 }

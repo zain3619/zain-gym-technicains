@@ -4,7 +4,21 @@ import React, { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import MediaImage from "./ui/MediaImage";
 import StackPanel from "./ui/StackPanel";
-import { enrichTestimonial } from "../lib/testimonialCopy";
+import { enrichTestimonial, TESTIMONIAL_COPY } from "../lib/testimonialCopy";
+
+const LOCAL_REVIEWS = Object.entries(TESTIMONIAL_COPY).map(
+  ([name, copy], idx) => ({
+    id: `local-${idx}`,
+    name,
+    role:
+      idx % 2 === 0
+        ? "Gym Owner · Lahore"
+        : "Studio Partner · Commercial Project",
+    text: copy.text,
+    rating: copy.rating || 5,
+    imageUrl: "",
+  })
+);
 
 function StarRating({ value = 5 }) {
   const n = Math.min(5, Math.max(1, Math.round(value)));
@@ -33,7 +47,7 @@ function StarRating({ value = 5 }) {
 }
 
 export default function Testimonials() {
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState(LOCAL_REVIEWS);
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -46,7 +60,7 @@ export default function Testimonials() {
           setReviews(resData.map((item, idx) => enrichTestimonial(item, idx)));
         }
       } catch {
-        // hide when unavailable
+        // keep local reviews so section never disappears
       }
     };
     fetchReviews();
@@ -60,8 +74,6 @@ export default function Testimonials() {
     return () => window.clearInterval(timer);
   }, [reviews.length]);
 
-  if (reviews.length === 0) return null;
-
   const prev = () => {
     setActive((i) => (i === 0 ? reviews.length - 1 : i - 1));
   };
@@ -71,25 +83,26 @@ export default function Testimonials() {
   };
 
   const review = reviews[active] || reviews[0];
+  if (!review) return null;
 
   return (
     <>
       <StackPanel className="bg-[#050505]">
         <div className="absolute inset-0">
           <MediaImage
-            src="/contact-hero.png"
+            src="/testimonials-bg.webp"
             alt=""
             fill
             sizes="100vw"
             className="object-cover object-center"
-            fallback="/hero-gym.png"
+            fallback="/testimonials-bg.webp"
           />
           <div className="absolute inset-0 bg-[#050505]/72" />
           <div className="cinema-overlay" />
         </div>
-        <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-center px-5 py-20 md:px-10 md:py-24 lg:px-14">
-          <p className="scene-label mb-4">07 — Testimonials</p>
-          <h2 className="display-xl max-w-3xl text-[clamp(2rem,6vw,5rem)] text-[#F5F5F5]">
+        <div className="panel-copy panel-copy--center">
+          <p className="scene-label mb-3 md:mb-4">07 — Testimonials</p>
+          <h2 className="display-xl max-w-3xl text-[clamp(1.75rem,5vw,5rem)] text-[#F5F5F5]">
             What Our Clients Say
           </h2>
         </div>
@@ -98,26 +111,28 @@ export default function Testimonials() {
       <StackPanel className="bg-[#080808]">
         <div className="absolute inset-0">
           <MediaImage
-            src={review.imageUrl || "/hero-gym.png"}
+            src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=1600"
             alt=""
             fill
             sizes="100vw"
             className="object-cover object-center opacity-35"
-            fallback="/hero-gym.png"
+            fallback="/testimonials-bg.webp"
           />
-          <div className="absolute inset-0 bg-[#080808]/80" />
+          <div className="absolute inset-0 bg-[#080808]/82" />
           <div className="cinema-overlay" />
         </div>
 
-        <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-center px-5 py-16 md:px-10 md:py-24 lg:px-14">
+        <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-center px-5 py-16 text-center md:px-10 md:py-24 md:text-left lg:px-14">
           <p className="scene-label mb-4 md:mb-5">
             Quote / {String(active + 1).padStart(2, "0")} —{" "}
             {String(reviews.length).padStart(2, "0")}
           </p>
 
-          <StarRating value={review.rating} />
+          <div className="flex justify-center md:justify-start">
+            <StarRating value={review.rating} />
+          </div>
 
-          <blockquote className="max-w-5xl">
+          <blockquote className="mx-auto max-w-5xl md:mx-0">
             <p
               key={review.id}
               className="font-display text-[clamp(1.15rem,3.2vw,2.85rem)] font-semibold leading-[1.28] tracking-[-0.03em] text-[#F5F5F5] transition-opacity duration-500"
@@ -125,7 +140,7 @@ export default function Testimonials() {
               &ldquo;{review.text}&rdquo;
             </p>
 
-            <footer className="mt-8 flex flex-wrap items-center gap-4 border-t border-white/10 pt-6 md:mt-10">
+            <footer className="mt-8 flex flex-wrap items-center justify-center gap-4 border-t border-white/10 pt-6 md:mt-10 md:justify-start">
               {review.imageUrl ? (
                 <div className="relative h-12 w-12 shrink-0 overflow-hidden border border-white/10">
                   <MediaImage
@@ -152,7 +167,7 @@ export default function Testimonials() {
               </div>
 
               {reviews.length > 1 ? (
-                <div className="ml-auto flex items-center gap-4">
+                <div className="flex w-full items-center justify-center gap-4 md:ml-auto md:w-auto md:justify-end">
                   <button
                     type="button"
                     onClick={prev}

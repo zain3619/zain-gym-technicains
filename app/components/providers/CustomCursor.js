@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-/** Custom cursor: fast dot + soft label ring */
+/** Custom cursor: fast dot + soft label ring (client-only to avoid extension hydration noise) */
 export default function CustomCursor() {
+  const [mounted, setMounted] = useState(false);
   const rootRef = useRef(null);
   const dotRef = useRef(null);
   const labelRef = useRef(null);
@@ -13,6 +14,12 @@ export default function CustomCursor() {
   const raf = useRef(0);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return undefined;
+
     const isFinePointer = window.matchMedia(
       "(hover: hover) and (pointer: fine)"
     ).matches;
@@ -70,7 +77,9 @@ export default function CustomCursor() {
       document.removeEventListener("mouseover", onOver);
       cancelAnimationFrame(raf.current);
     };
-  }, []);
+  }, [mounted]);
+
+  if (!mounted) return null;
 
   return (
     <div
@@ -78,6 +87,7 @@ export default function CustomCursor() {
       className="custom-cursor-root"
       aria-hidden
       style={{ opacity: 0 }}
+      suppressHydrationWarning
     >
       <div ref={dotRef} className="cursor-dot" />
       <div ref={labelRef} className="cursor-label">

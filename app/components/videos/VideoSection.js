@@ -27,10 +27,10 @@ export default function VideoSection() {
 
   return (
     <StackPanel id="videos" z={VIDEO_Z} className="bg-[#070707]">
-      <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-center px-4 py-20 md:px-10 lg:px-14">
-        <div className="mb-12 max-w-3xl">
-          <p className="scene-label mb-4">Video</p>
-          <h2 className="display-xl text-[clamp(2.2rem,6vw,4.5rem)] text-[#F5F5F5]">
+      <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-center px-4 py-16 md:px-10 md:py-20 lg:px-14">
+        <div className="mb-8 max-w-3xl md:mb-12">
+          <p className="scene-label mb-3 md:mb-4">Video</p>
+          <h2 className="display-xl text-[clamp(1.75rem,5vw,4.5rem)] text-[#F5F5F5]">
             Watch Our Gym In Action
           </h2>
         </div>

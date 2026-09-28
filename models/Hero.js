@@ -14,7 +14,7 @@ const HeroSchema = new mongoose.Schema({
   backgroundImage: {
     type: String,
     required: true,
-    default: "/hero-gym.png",
+    default: "/gym-hero-bg.mp4",
   },
   ctaText1: {
     type: String,

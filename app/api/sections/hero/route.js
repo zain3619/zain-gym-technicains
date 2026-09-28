@@ -11,9 +11,25 @@ export async function GET(req) {
     if (!hero) {
       hero = await Hero.create({});
     }
-    return NextResponse.json(hero);
+    const payload = hero.toObject ? hero.toObject() : { ...hero };
+    // Prefer fast local optimized hero video when DB still points at legacy still
+    if (
+      !payload.backgroundImage ||
+      String(payload.backgroundImage).includes("hero-gym.png") ||
+      String(payload.backgroundImage).includes("picsum.photos")
+    ) {
+      payload.backgroundImage = "/gym-hero-bg.mp4";
+    }
+    return NextResponse.json(payload);
   } catch (error) {
-    return NextResponse.json(null, { status: 200 });
+    return NextResponse.json(
+      {
+        heading: "Complete Gym Setup",
+        subheading: "From Design to Equipment Supply",
+        backgroundImage: "/gym-hero-bg.mp4",
+      },
+      { status: 200 }
+    );
   }
 }
 

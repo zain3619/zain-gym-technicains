@@ -2,14 +2,31 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
-import { 
-  Dumbbell, LayoutDashboard, Image, Settings, Users, 
-  MessageSquare, PenTool, Award, Home, FolderHeart, 
-  Sparkles, LogOut, Menu, X, ArrowLeftRight, ScrollText, ListCollapse,
-  Film
+import {
+  Dumbbell,
+  LayoutDashboard,
+  Image as ImageIcon,
+  Settings,
+  Users,
+  MessageSquare,
+  PenTool,
+  Award,
+  Home,
+  FolderHeart,
+  Sparkles,
+  LogOut,
+  Menu,
+  X,
+  ScrollText,
+  Film,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { COMPANY_NAME } from "../../lib/seo";
+
+const SIDEBAR_W = 260;
+const SIDEBAR_COLLAPSED_W = 76;
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -23,7 +40,7 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     const token = localStorage.getItem("admin_token");
     const adminUser = localStorage.getItem("admin_user");
-    
+
     if (!token) {
       toast.error("Access Denied. Please log in first.");
       router.push("/admin");
@@ -35,7 +52,6 @@ export default function DashboardLayout({ children }) {
     }
   }, [router]);
 
-  // Sync user updates in real-time
   useEffect(() => {
     const handleUserUpdate = () => {
       const adminUser = localStorage.getItem("admin_user");
@@ -47,19 +63,25 @@ export default function DashboardLayout({ children }) {
     return () => window.removeEventListener("admin_user_updated", handleUserUpdate);
   }, []);
 
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
+
   const handleLogout = () => {
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
-    toast.success("Successfully logged out. Goodbye!");
+    toast.success("Successfully logged out.");
     router.push("/admin");
   };
 
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
+      <div className="flex min-h-screen items-center justify-center bg-[#050505]">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#82cd2b] border-t-transparent" />
-          <p className="text-sm text-gray-400">Verifying administrator access...</p>
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#D9D9D9] border-t-transparent" />
+          <p className="text-xs uppercase tracking-[0.2em] text-[#A0A0A0]">
+            Verifying access…
+          </p>
         </div>
       </div>
     );
@@ -70,7 +92,7 @@ export default function DashboardLayout({ children }) {
     { name: "Hero Section", href: "/admin/dashboard/hero", icon: Home },
     { name: "About Details", href: "/admin/dashboard/about", icon: FolderHeart },
     { name: "Services CRUD", href: "/admin/dashboard/services", icon: Dumbbell },
-    { name: "Gallery Stream", href: "/admin/dashboard/gallery", icon: Image },
+    { name: "Gallery Stream", href: "/admin/dashboard/gallery", icon: ImageIcon },
     { name: "Video Gallery", href: "/admin/dashboard/videos", icon: Film },
     { name: "Team & Roster", href: "/admin/dashboard/team", icon: Users },
     { name: "Testimonials", href: "/admin/dashboard/testimonials", icon: MessageSquare },
@@ -83,240 +105,247 @@ export default function DashboardLayout({ children }) {
     { name: "Global Settings", href: "/admin/dashboard/settings", icon: Settings },
   ];
 
+  const activeName =
+    menuItems.find((item) => item.href === pathname)?.name || "Control Center";
+  const sidebarWidth = isSidebarOpen ? SIDEBAR_W : SIDEBAR_COLLAPSED_W;
+
+  const BrandMark = ({ compact = false }) => (
+    <Link
+      href="/admin/dashboard"
+      className={`flex items-center gap-3 overflow-hidden ${compact ? "" : ""}`}
+    >
+      <div className="relative h-10 w-10 shrink-0 overflow-hidden border border-white/15 bg-[#111]">
+        <Image
+          src="/icon.png"
+          alt={COMPANY_NAME}
+          fill
+          sizes="40px"
+          className="object-cover"
+          priority
+        />
+      </div>
+      {isSidebarOpen || compact ? (
+        <div className="min-w-0 select-none">
+          <h1 className="font-display text-[11px] font-bold uppercase leading-none tracking-[-0.02em] text-[#F5F5F5]">
+            Zain Gym
+          </h1>
+          <span className="mt-1 block text-[8px] font-semibold uppercase tracking-[0.22em] text-[#A0A0A0]">
+            Admin
+          </span>
+        </div>
+      ) : null}
+    </Link>
+  );
+
+  const NavLinks = ({ onNavigate, showLabels = true }) =>
+    menuItems.map((item) => {
+      const Icon = item.icon;
+      const isActive = pathname === item.href;
+      return (
+        <Link
+          key={item.name}
+          href={item.href}
+          onClick={onNavigate}
+          title={item.name}
+          className={`flex items-center gap-3 px-3.5 py-3 text-[10px] font-semibold uppercase tracking-[0.16em] transition-colors ${
+            isActive
+              ? "bg-[#D9D9D9] text-[#050505]"
+              : "text-[#A0A0A0] hover:bg-white/[0.04] hover:text-[#F5F5F5]"
+          } ${!showLabels ? "justify-center px-0" : ""}`}
+        >
+          <Icon className="h-[18px] w-[18px] shrink-0" />
+          {showLabels ? <span className="truncate">{item.name}</span> : null}
+        </Link>
+      );
+    });
+
   return (
-    <div className="min-h-screen bg-black text-white flex overflow-hidden">
-      
-      {/* 1. DESKTOP SIDEBAR */}
-      <aside 
-        className={`hidden lg:flex flex-col bg-[#080808] border-r border-white/5 transition-all duration-300 relative z-25 shrink-0 ${
-          isSidebarOpen ? "w-[270px]" : "w-[80px]"
-        }`}
+    <div className="h-dvh overflow-hidden bg-[#050505] text-[#F5F5F5]">
+      {/* Fixed desktop sidebar */}
+      <aside
+        className="fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-white/10 bg-[#080808] transition-[width] duration-300 lg:flex"
+        style={{ width: sidebarWidth }}
       >
-        {/* Sidebar Header */}
-        <div className="flex h-20 items-center justify-between px-5 border-b border-white/5">
-          <Link href="/admin/dashboard" className="flex items-center gap-3 overflow-hidden">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#111] border border-white/10 text-[#82cd2b]">
-              <Dumbbell className="h-5 w-5" />
-            </div>
-            {isSidebarOpen && (
-              <div className="flex flex-col select-none">
-                <h1 className="text-white text-xs font-black tracking-tighter uppercase leading-none">
-                  ZAIN GYM <span className="text-[#82cd2b]">ADMIN</span>
-                </h1>
-                <span className="text-[8px] text-gray-500 tracking-[1.5px] uppercase mt-0.5">
-                  Core Management
-                </span>
-              </div>
-            )}
-          </Link>
+        <div className="flex h-16 shrink-0 items-center border-b border-white/10 px-4">
+          <BrandMark />
         </div>
 
-        {/* Navigation Deck */}
-        <nav className="flex-1 overflow-y-auto px-3 py-6 space-y-1.5 no-scrollbar">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`flex items-center gap-3.5 px-4.5 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98] ${
-                  isActive 
-                    ? "bg-[#82cd2b] text-black shadow-[0_4px_15px_rgba(130,205,43,0.22)]" 
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-                title={item.name}
-              >
-                <Icon className="h-5 w-5 shrink-0" />
-                {isSidebarOpen && <span className="truncate">{item.name}</span>}
-              </Link>
-            );
-          })}
+        <nav className="no-scrollbar flex-1 space-y-0.5 overflow-y-auto px-2 py-4">
+          <NavLinks showLabels={isSidebarOpen} />
         </nav>
 
-        {/* Sidebar Footer */}
-        <div className="p-4 border-t border-white/5 bg-black/30">
+        <div className="shrink-0 border-t border-white/10 p-2">
           <button
+            type="button"
             onClick={handleLogout}
-            className={`flex w-full items-center gap-3.5 px-4.5 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider text-red-400 hover:bg-red-500/10 active:scale-[0.98] transition-all cursor-pointer ${
-              !isSidebarOpen && "justify-center"
-            }`}
             title="Log Out"
+            className={`flex w-full items-center gap-3 px-3.5 py-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-400 transition-colors hover:bg-red-500/10 ${
+              !isSidebarOpen ? "justify-center px-0" : ""
+            }`}
           >
-            <LogOut className="h-5 w-5 shrink-0" />
-            {isSidebarOpen && <span>LOG OUT</span>}
+            <LogOut className="h-[18px] w-[18px] shrink-0" />
+            {isSidebarOpen ? <span>Log Out</span> : null}
           </button>
         </div>
       </aside>
 
-      {/* 2. MOBILE MENU OVERLAY */}
-      <div 
-        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300 lg:hidden ${
-          isMobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      {/* Mobile drawer */}
+      <div
+        className={`fixed inset-0 z-40 bg-black/70 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+          isMobileOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0"
         }`}
         onClick={() => setIsMobileOpen(false)}
       >
-        <aside 
-          className={`w-[280px] h-full bg-[#080808] border-r border-white/5 flex flex-col transition-transform duration-300 ${
+        <aside
+          className={`flex h-full w-[280px] flex-col border-r border-white/10 bg-[#080808] transition-transform duration-300 ${
             isMobileOpen ? "translate-x-0" : "-translate-x-full"
           }`}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
-          <div className="flex h-20 items-center justify-between px-6 border-b border-white/5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#111] border border-white/10 text-[#82cd2b]">
-                <Dumbbell className="h-5 w-5" />
-              </div>
-              <div className="flex flex-col">
-                <h1 className="text-white text-xs font-black tracking-tighter uppercase leading-none">
-                  ZAIN GYM <span className="text-[#82cd2b]">ADMIN</span>
-                </h1>
-                <span className="text-[8px] text-gray-500 tracking-[1.5px] uppercase mt-0.5">
-                  Core Management
-                </span>
-              </div>
-            </div>
-            <button 
+          <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-4">
+            <BrandMark compact />
+            <button
+              type="button"
               onClick={() => setIsMobileOpen(false)}
-              className="p-1 text-gray-400 hover:text-white"
+              className="p-1.5 text-[#A0A0A0] hover:text-[#F5F5F5]"
+              aria-label="Close menu"
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5" />
             </button>
           </div>
 
-          {/* Navigation Deck */}
-          <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-1.5 no-scrollbar">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center gap-3.5 px-4.5 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
-                    isActive 
-                      ? "bg-[#82cd2b] text-black" 
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
-                  }`}
-                  onClick={() => setIsMobileOpen(false)}
-                >
-                  <Icon className="h-5 w-5 shrink-0" />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
+          <nav className="no-scrollbar flex-1 space-y-0.5 overflow-y-auto px-2 py-4">
+            <NavLinks onNavigate={() => setIsMobileOpen(false)} showLabels />
           </nav>
 
-          {/* Logout */}
-          <div className="p-4 border-t border-white/5">
+          <div className="shrink-0 border-t border-white/10 p-2">
             <button
+              type="button"
               onClick={handleLogout}
-              className="flex w-full items-center gap-3.5 px-4.5 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+              className="flex w-full items-center gap-3 px-3.5 py-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-400 transition-colors hover:bg-red-500/10"
             >
-              <LogOut className="h-5 w-5 shrink-0" />
-              <span>LOG OUT</span>
+              <LogOut className="h-[18px] w-[18px] shrink-0" />
+              <span>Log Out</span>
             </button>
           </div>
         </aside>
       </div>
 
-      {/* 3. MAIN CONTENT WORKSPACE */}
-      <div className="flex-1 flex flex-col overflow-hidden relative">
-        
-        {/* TOP NAVBAR */}
-        <header className="h-20 bg-[#080808]/85 backdrop-blur-md border-b border-white/5 px-6 flex items-center justify-between z-20 sticky top-0">
-          <div className="flex items-center gap-4">
-            {/* Desktop Toggle */}
-            <button 
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="hidden lg:flex p-2 text-gray-400 hover:text-[#82cd2b] hover:bg-white/5 rounded-lg active:scale-95 transition-all cursor-pointer"
+      {/* Main column — only this scrolls */}
+      <div
+        className="flex h-dvh flex-col transition-[padding] duration-300 lg:pl-[var(--admin-sidebar-w)]"
+        style={{
+          ["--admin-sidebar-w"]: `${sidebarWidth}px`,
+        }}
+      >
+        <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between border-b border-white/10 bg-[#080808]/90 px-4 backdrop-blur-md sm:px-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen((v) => !v)}
+              className="hidden p-2 text-[#A0A0A0] transition-colors hover:bg-white/5 hover:text-[#D9D9D9] lg:flex"
               title="Toggle sidebar"
+              aria-label="Toggle sidebar"
             >
               <Menu className="h-5 w-5" />
             </button>
-            {/* Mobile Trigger */}
-            <button 
+            <button
+              type="button"
               onClick={() => setIsMobileOpen(true)}
-              className="lg:hidden p-2 text-gray-400 hover:text-[#82cd2b] hover:bg-white/5 rounded-lg active:scale-95 transition-all cursor-pointer"
+              className="p-2 text-[#A0A0A0] transition-colors hover:bg-white/5 hover:text-[#D9D9D9] lg:hidden"
+              aria-label="Open menu"
             >
               <Menu className="h-5 w-5" />
             </button>
 
-            <span className="h-5 w-[1px] bg-white/10 hidden sm:block" />
-            
-            {/* Context title */}
-            <h2 className="text-sm sm:text-base font-extrabold uppercase tracking-widest text-[#82cd2b] hidden sm:block">
-              {menuItems.find(item => item.href === pathname)?.name || "Control Center"}
-            </h2>
+            <span className="hidden h-5 w-px bg-white/10 sm:block" />
+
+            <div className="hidden sm:block">
+              <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.22em] text-[#A0A0A0]">
+                Admin
+              </p>
+              <h2 className="font-display text-sm font-bold uppercase tracking-[-0.02em] text-[#F5F5F5]">
+                {activeName}
+              </h2>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* Profile widget dropdown */}
-            <div className="relative">
-              <button 
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-3 cursor-pointer group hover:opacity-90 focus:outline-none"
-              >
-                <div className="flex flex-col text-right hidden xs:flex">
-                  <span className="text-xs font-bold text-white capitalize group-hover:text-[#82cd2b] transition-colors">{user?.username || "Admin"}</span>
-                  <span className="text-[9px] text-[#82cd2b] uppercase tracking-wider font-extrabold">{user?.role || "Console Admin"}</span>
-                </div>
-                
-                <div className="h-10 w-10 rounded-xl overflow-hidden bg-black border border-[#82cd2b]/25 flex items-center justify-center text-black font-black text-sm uppercase shrink-0">
-                  {user?.profileImage ? (
-                    <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="h-full w-full bg-[radial-gradient(circle_at_35%_35%,#82cd2b,rgba(0,0,0,1))] flex items-center justify-center text-black font-black">
-                      {user?.username?.substring(0, 2) || "AD"}
-                    </div>
-                  )}
-                </div>
-              </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen((v) => !v)}
+              className="flex items-center gap-3 focus:outline-none"
+            >
+              <div className="hidden text-right xs:block sm:block">
+                <span className="block text-xs font-semibold capitalize text-[#F5F5F5]">
+                  {user?.username || "Admin"}
+                </span>
+                <span className="block text-[9px] font-semibold uppercase tracking-[0.18em] text-[#A0A0A0]">
+                  {user?.role || "Console Admin"}
+                </span>
+              </div>
 
-              {/* DROPDOWN MENU */}
-              {isDropdownOpen && (
-                <>
-                  <div className="fixed inset-0 z-30" onClick={() => setIsDropdownOpen(false)}></div>
-                  
-                  <div className="absolute right-0 mt-2 w-48 rounded-xl border border-white/5 bg-[#0d0d0d] p-1.5 shadow-2xl z-40 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <Link 
-                      href="/admin/dashboard/profile"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-                    >
-                      <Users className="h-4 w-4 text-[#82cd2b]" />
-                      My Profile
-                    </Link>
-                    <Link 
-                      href="/admin/dashboard/admin-settings"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-                    >
-                      <Settings className="h-4 w-4 text-amber-400" />
-                      Settings
-                    </Link>
-                    <div className="h-[1px] bg-white/5 my-1.5" />
-                    <button 
-                      onClick={() => { setIsDropdownOpen(false); handleLogout(); }}
-                      className="flex w-full items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Log Out
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+              <div className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-white/15 bg-[#111] text-[11px] font-bold uppercase text-[#D9D9D9]">
+                {user?.profileImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={user.profileImage}
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  user?.username?.substring(0, 2) || "AD"
+                )}
+              </div>
+            </button>
+
+            {isDropdownOpen ? (
+              <>
+                <div
+                  className="fixed inset-0 z-30"
+                  onClick={() => setIsDropdownOpen(false)}
+                />
+                <div className="absolute right-0 z-40 mt-2 w-48 border border-white/10 bg-[#0D0D0D] p-1.5 shadow-2xl">
+                  <Link
+                    href="/admin/dashboard/profile"
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="flex items-center gap-2.5 px-3.5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#A0A0A0] transition-colors hover:bg-white/5 hover:text-[#F5F5F5]"
+                  >
+                    <Users className="h-4 w-4 text-[#D9D9D9]" />
+                    My Profile
+                  </Link>
+                  <Link
+                    href="/admin/dashboard/admin-settings"
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="flex items-center gap-2.5 px-3.5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#A0A0A0] transition-colors hover:bg-white/5 hover:text-[#F5F5F5]"
+                  >
+                    <Settings className="h-4 w-4 text-[#D9D9D9]" />
+                    Settings
+                  </Link>
+                  <div className="my-1.5 h-px bg-white/10" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      handleLogout();
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-400 transition-colors hover:bg-red-500/10"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Log Out
+                  </button>
+                </div>
+              </>
+            ) : null}
           </div>
         </header>
 
-        {/* WORKSPACE SCROLL */}
-        <main className="flex-1 overflow-y-auto px-6 py-8 relative no-scrollbar">
+        <main className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 sm:px-6 sm:py-8">
           {children}
         </main>
       </div>
-
     </div>
   );
 }

@@ -43,7 +43,7 @@ export default function ContactPage() {
       />
       <Navbar />
       <Contact />
-      <Footer />
+      <Footer showHero={false} />
     </main>
   );
 }

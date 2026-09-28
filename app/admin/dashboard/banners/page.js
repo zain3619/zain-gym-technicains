@@ -6,9 +6,12 @@ import {
   Upload, Sparkles, Eye, EyeOff
 } from "lucide-react";
 import toast from "react-hot-toast";
+import ConfirmModal from "../../../components/ui/ConfirmModal";
 
 export default function BannersManagementPage() {
   const [banners, setBanners] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -97,24 +100,35 @@ export default function BannersManagementPage() {
     setModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to remove this banner layout slide?")) return;
-    
+  const askDelete = (id) => {
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget;
+    setDeleting(true);
     const token = localStorage.getItem("admin_token");
     try {
       const response = await fetch(`/api/banners/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
         toast.success("Banner deleted successfully");
+        setDeleteTarget(null);
         fetchBanners();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || "Deletion failed");
       }
     } catch (error) {
-      toast.error("Deletion failed");
+      toast.error(error.message || "Deletion failed");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -167,18 +181,19 @@ export default function BannersManagementPage() {
   };
 
   return (
+    <>
     <div className="space-y-6">
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-black uppercase text-white tracking-wider">
-            Promotional <span className="text-[#82cd2b]">Banners & Sliders</span>
+            Promotional <span className="text-[#D9D9D9]">Banners & Sliders</span>
           </h1>
           <p className="text-xs text-gray-500 mt-1">Configure layout carousel banners, promotional discount cards, and sliders order.</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="flex h-10 items-center gap-2 rounded-lg bg-[#82cd2b] text-black px-4.5 text-xs font-black uppercase tracking-wider hover:bg-[#97ff02] active:scale-95 transition-all cursor-pointer shadow-md"
+          className="flex h-10 items-center gap-2 rounded-lg bg-[#D9D9D9] text-black px-4.5 text-xs font-black uppercase tracking-wider hover:bg-[#F5F5F5] active:scale-95 transition-all cursor-pointer shadow-md"
         >
           <Plus className="h-4 w-4" />
           ADD BANNER
@@ -187,12 +202,12 @@ export default function BannersManagementPage() {
 
       {loading ? (
         <div className="flex h-[40vh] w-full items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#82cd2b]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#D9D9D9]" />
         </div>
       ) : banners.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {banners.map((banner) => (
-            <div key={banner._id} className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-4 flex flex-col justify-between group hover:border-[#82cd2b]/30 transition-all duration-300 relative shadow-xl">
+            <div key={banner._id} className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-4 flex flex-col justify-between group hover:border-[#D9D9D9]/30 transition-all duration-300 relative shadow-xl">
               <div>
                 <div className="relative aspect-[21/9] rounded-xl overflow-hidden bg-black border border-white/5 group-hover:scale-[1.01] transition-transform duration-300">
                   <img 
@@ -200,7 +215,7 @@ export default function BannersManagementPage() {
                     alt={banner.title} 
                     className="w-full h-full object-cover"
                   />
-                  <span className="absolute top-2 left-2 flex h-5 items-center rounded bg-black/85 px-2 text-[8px] font-black uppercase tracking-wider text-[#82cd2b] border border-[#82cd2b]/25">
+                  <span className="absolute top-2 left-2 flex h-5 items-center rounded bg-black/85 px-2 text-[8px] font-black uppercase tracking-wider text-[#D9D9D9] border border-[#D9D9D9]/25">
                     {banner.type}
                   </span>
                   
@@ -212,7 +227,7 @@ export default function BannersManagementPage() {
                       <Edit2 className="h-3.5 w-3.5" />
                     </button>
                     <button 
-                      onClick={() => handleDelete(banner._id)}
+                      onClick={() => askDelete(banner._id)}
                       className="h-8 w-8 rounded-lg bg-black/85 hover:bg-red-500 border border-white/10 hover:border-red-500 text-gray-300 hover:text-white flex items-center justify-center active:scale-90 transition-all cursor-pointer"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -250,7 +265,7 @@ export default function BannersManagementPage() {
             
             <div className="flex justify-between items-center pb-4 border-b border-white/5 mb-5 shrink-0">
               <h3 className="text-xs font-black uppercase text-white tracking-widest flex items-center gap-2">
-                <Sparkles className="h-4.5 w-4.5 text-[#82cd2b]" />
+                <Sparkles className="h-4.5 w-4.5 text-[#D9D9D9]" />
                 {editId ? "Modify Banner Properties" : "Register Banner Promo"}
               </h3>
               <button onClick={() => setModalOpen(false)} className="p-1 text-gray-400 hover:text-white">
@@ -266,7 +281,7 @@ export default function BannersManagementPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Eid Promo Offer - Free Assembly"
-                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                   required
                 />
               </div>
@@ -277,7 +292,7 @@ export default function BannersManagementPage() {
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value)}
-                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-3 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22rgba(255,255,255,0.4)%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat"
+                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-3 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22rgba(255,255,255,0.4)%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat"
                   >
                     <option value="homepage">Homepage Main Carousel</option>
                     <option value="promotional">Promo Inline Block</option>
@@ -290,7 +305,7 @@ export default function BannersManagementPage() {
                     type="number"
                     value={order}
                     onChange={(e) => setOrder(Number(e.target.value))}
-                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                   />
                 </div>
               </div>
@@ -306,7 +321,7 @@ export default function BannersManagementPage() {
                     />
                   </div>
                 ) : null}
-                <label className="flex items-center justify-center gap-2 border border-dashed border-white/15 hover:border-[#82cd2b]/40 rounded-lg h-11 bg-black/35 hover:bg-black/60 transition-all cursor-pointer">
+                <label className="flex items-center justify-center gap-2 border border-dashed border-white/15 hover:border-[#D9D9D9]/40 rounded-lg h-11 bg-black/35 hover:bg-black/60 transition-all cursor-pointer">
                   <Upload className="h-4 w-4 text-gray-400" />
                   <span className="text-[10px] font-extrabold uppercase text-white tracking-wider">Choose Image</span>
                   <input
@@ -355,7 +370,7 @@ export default function BannersManagementPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 h-11 rounded-lg bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#97ff02] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
+                  className="flex-1 h-11 rounded-lg bg-[#D9D9D9] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#F5F5F5] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
                 >
                   {submitting ? (
                     <Loader2 className="h-4.5 w-4.5 animate-spin text-black" />
@@ -374,5 +389,17 @@ export default function BannersManagementPage() {
       )}
 
     </div>
+
+      <ConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Delete this banner?"
+        message="This banner will be permanently removed."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => !deleting && setDeleteTarget(null)}
+      />
+    </>
   );
 }

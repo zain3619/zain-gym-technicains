@@ -6,9 +6,12 @@ import {
   Upload, Star, MessageSquare
 } from "lucide-react";
 import toast from "react-hot-toast";
+import ConfirmModal from "../../../components/ui/ConfirmModal";
 
 export default function TestimonialsManagementPage() {
   const [testimonials, setTestimonials] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -51,7 +54,7 @@ export default function TestimonialsManagementPage() {
           _id: "test2",
           name: "Amna Bilal",
           role: "Co-founder, Core Studio DHA",
-          text: "Superb CAD layouts layout. They optimized our tiny garage floor perfectly so we could fit smith machine, cardio climber, and free weights seamlessly.",
+          text: "Superb CAD layouts. They optimized our garage floor so we could fit a smith machine, cardio climber, and free weights.",
           rating: 5,
           imageUrl: "https://picsum.photos/200/200?random=42",
         }
@@ -97,24 +100,35 @@ export default function TestimonialsManagementPage() {
     setModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to remove this client testimonial?")) return;
-    
+  const askDelete = (id) => {
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget;
+    setDeleting(true);
     const token = localStorage.getItem("admin_token");
     try {
       const response = await fetch(`/api/testimonials/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
         toast.success("Testimonial removed successfully");
+        setDeleteTarget(null);
         fetchTestimonials();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || "Deletion failed");
       }
     } catch (error) {
-      toast.error("Deletion failed");
+      toast.error(error.message || "Deletion failed");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -167,18 +181,19 @@ export default function TestimonialsManagementPage() {
   };
 
   return (
+    <>
     <div className="space-y-6">
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-black uppercase text-white tracking-wider">
-            Client <span className="text-[#82cd2b]">Testimonials CMS</span>
+            Client <span className="text-[#D9D9D9]">Testimonials CMS</span>
           </h1>
           <p className="text-xs text-gray-500 mt-1">Manage ratings, client testimonials, names, and profiles on the frontend website.</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="flex h-10 items-center gap-2 rounded-lg bg-[#82cd2b] text-black px-4.5 text-xs font-black uppercase tracking-wider hover:bg-[#97ff02] active:scale-95 transition-all cursor-pointer shadow-md"
+          className="flex h-10 items-center gap-2 rounded-lg bg-[#D9D9D9] text-black px-4.5 text-xs font-black uppercase tracking-wider hover:bg-[#F5F5F5] active:scale-95 transition-all cursor-pointer shadow-md"
         >
           <Plus className="h-4 w-4" />
           ADD TESTIMONIAL
@@ -187,12 +202,12 @@ export default function TestimonialsManagementPage() {
 
       {loading ? (
         <div className="flex h-[40vh] w-full items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#82cd2b]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#D9D9D9]" />
         </div>
       ) : testimonials.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {testimonials.map((t) => (
-            <div key={t._id} className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-5 flex flex-col justify-between group hover:border-[#82cd2b]/30 transition-all duration-300 relative shadow-xl">
+            <div key={t._id} className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-5 flex flex-col justify-between group hover:border-[#D9D9D9]/30 transition-all duration-300 relative shadow-xl">
               <div>
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">
@@ -207,7 +222,7 @@ export default function TestimonialsManagementPage() {
                     </div>
                     <div>
                       <h4 className="text-xs font-bold text-white uppercase tracking-wider">{t.name}</h4>
-                      <span className="text-[9px] text-[#82cd2b] font-bold block mt-0.5">{t.role}</span>
+                      <span className="text-[9px] text-[#D9D9D9] font-bold block mt-0.5">{t.role}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-0.5 text-amber-400">
@@ -228,7 +243,7 @@ export default function TestimonialsManagementPage() {
                   <Edit2 className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(t._id)}
+                  onClick={() => askDelete(t._id)}
                   className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -250,7 +265,7 @@ export default function TestimonialsManagementPage() {
             
             <div className="flex justify-between items-center pb-4 border-b border-white/5 mb-5 shrink-0">
               <h3 className="text-xs font-black uppercase text-white tracking-widest flex items-center gap-2">
-                <MessageSquare className="h-4.5 w-4.5 text-[#82cd2b]" />
+                <MessageSquare className="h-4.5 w-4.5 text-[#D9D9D9]" />
                 {editId ? "Modify Client Testimonial" : "Register Testimonial"}
               </h3>
               <button onClick={() => setModalOpen(false)} className="p-1 text-gray-400 hover:text-white">
@@ -266,7 +281,7 @@ export default function TestimonialsManagementPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Mohammad Usman"
-                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                   required
                 />
               </div>
@@ -279,7 +294,7 @@ export default function TestimonialsManagementPage() {
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                     placeholder="e.g. Owner, Oxygen Gym"
-                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                     required
                   />
                 </div>
@@ -289,7 +304,7 @@ export default function TestimonialsManagementPage() {
                   <select
                     value={rating}
                     onChange={(e) => setRating(Number(e.target.value))}
-                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-3 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22rgba(255,255,255,0.4)%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat"
+                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-3 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22rgba(255,255,255,0.4)%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat"
                   >
                     <option value={5}>5 Stars (Excellent)</option>
                     <option value={4}>4 Stars (Good)</option>
@@ -307,7 +322,7 @@ export default function TestimonialsManagementPage() {
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="Paste the feedback comments here..."
-                  className="w-full rounded-lg border border-white/10 bg-black p-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all resize-none"
+                  className="w-full rounded-lg border border-white/10 bg-black p-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all resize-none"
                   required
                 />
               </div>
@@ -323,7 +338,7 @@ export default function TestimonialsManagementPage() {
                     />
                   </div>
                 ) : null}
-                <label className="flex items-center justify-center gap-2 border border-dashed border-white/15 hover:border-[#82cd2b]/40 rounded-lg h-11 bg-black/35 hover:bg-black/60 transition-all cursor-pointer">
+                <label className="flex items-center justify-center gap-2 border border-dashed border-white/15 hover:border-[#D9D9D9]/40 rounded-lg h-11 bg-black/35 hover:bg-black/60 transition-all cursor-pointer">
                   <Upload className="h-4 w-4 text-gray-400" />
                   <span className="text-[10px] font-extrabold uppercase text-white tracking-wider">Choose Image</span>
                   <input
@@ -346,7 +361,7 @@ export default function TestimonialsManagementPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 h-11 rounded-lg bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#97ff02] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
+                  className="flex-1 h-11 rounded-lg bg-[#D9D9D9] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#F5F5F5] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
                 >
                   {submitting ? (
                     <Loader2 className="h-4.5 w-4.5 animate-spin text-black" />
@@ -365,5 +380,17 @@ export default function TestimonialsManagementPage() {
       )}
 
     </div>
+
+      <ConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Delete this testimonial?"
+        message="This review will be permanently removed."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => !deleting && setDeleteTarget(null)}
+      />
+    </>
   );
 }

@@ -6,9 +6,12 @@ import {
   Award, Sparkles, CheckCircle2
 } from "lucide-react";
 import toast from "react-hot-toast";
+import ConfirmModal from "../../../components/ui/ConfirmModal";
 
 export default function PricingManagementPage() {
   const [plans, setPlans] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -79,24 +82,35 @@ export default function PricingManagementPage() {
     setModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to remove this package?")) return;
-    
+  const askDelete = (id) => {
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget;
+    setDeleting(true);
     const token = localStorage.getItem("admin_token");
     try {
       const response = await fetch(`/api/pricing/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
         toast.success("Package deleted successfully");
+        setDeleteTarget(null);
         fetchPlans();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || "Deletion failed");
       }
     } catch (error) {
-      toast.error("Deletion failed");
+      toast.error(error.message || "Deletion failed");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -149,18 +163,19 @@ export default function PricingManagementPage() {
   };
 
   return (
+    <>
     <div className="space-y-6">
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-black uppercase text-white tracking-wider">
-            Membership & <span className="text-[#82cd2b]">Pricing Packages</span>
+            Membership & <span className="text-[#D9D9D9]">Pricing Packages</span>
           </h1>
           <p className="text-xs text-gray-500 mt-1">Configure pricing packages, assembly rates, and highlighted gym building packages.</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="flex h-10 items-center gap-2 rounded-lg bg-[#82cd2b] text-black px-4.5 text-xs font-black uppercase tracking-wider hover:bg-[#97ff02] active:scale-95 transition-all cursor-pointer shadow-md"
+          className="flex h-10 items-center gap-2 rounded-lg bg-[#D9D9D9] text-black px-4.5 text-xs font-black uppercase tracking-wider hover:bg-[#F5F5F5] active:scale-95 transition-all cursor-pointer shadow-md"
         >
           <Plus className="h-4 w-4" />
           ADD PLAN
@@ -169,7 +184,7 @@ export default function PricingManagementPage() {
 
       {loading ? (
         <div className="flex h-[40vh] w-full items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#82cd2b]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#D9D9D9]" />
         </div>
       ) : plans.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -178,12 +193,12 @@ export default function PricingManagementPage() {
               key={plan._id} 
               className={`rounded-2xl border p-6 flex flex-col justify-between group transition-all duration-300 relative shadow-xl ${
                 plan.isFeatured 
-                  ? "bg-[#82cd2b]/5 border-[#82cd2b]/25 shadow-[#82cd2b]/2"
+                  ? "bg-[#D9D9D9]/5 border-[#D9D9D9]/25 shadow-[#D9D9D9]/2"
                   : "bg-[#0d0d0d] border-white/5 hover:border-white/10"
               }`}
             >
               {plan.isFeatured && (
-                <span className="absolute -top-3 left-6 flex h-6 items-center gap-1 rounded-full bg-[#82cd2b] px-3.5 text-[8px] font-black uppercase tracking-widest text-black shadow-md">
+                <span className="absolute -top-3 left-6 flex h-6 items-center gap-1 rounded-full bg-[#D9D9D9] px-3.5 text-[8px] font-black uppercase tracking-widest text-black shadow-md">
                   <Sparkles className="h-3 w-3 fill-black text-black" />
                   RECOMMENDED
                 </span>
@@ -201,7 +216,7 @@ export default function PricingManagementPage() {
                 <div className="space-y-2.5 pt-4.5 border-t border-white/5">
                   {Array.isArray(plan.features) && plan.features.map((feat, idx) => (
                     <div key={idx} className="flex items-start gap-2.5 text-xs text-gray-400">
-                      <CheckCircle2 className="h-4 w-4 text-[#82cd2b] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="h-4 w-4 text-[#D9D9D9] shrink-0 mt-0.5" />
                       <span>{feat}</span>
                     </div>
                   ))}
@@ -216,7 +231,7 @@ export default function PricingManagementPage() {
                   <Edit2 className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(plan._id)}
+                  onClick={() => askDelete(plan._id)}
                   className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -238,7 +253,7 @@ export default function PricingManagementPage() {
             
             <div className="flex justify-between items-center pb-4 border-b border-white/5 mb-5 shrink-0">
               <h3 className="text-xs font-black uppercase text-white tracking-widest flex items-center gap-2">
-                <Award className="h-4.5 w-4.5 text-[#82cd2b]" />
+                <Award className="h-4.5 w-4.5 text-[#D9D9D9]" />
                 {editId ? "Modify Pricing Plan" : "Create Pricing Plan"}
               </h3>
               <button onClick={() => setModalOpen(false)} className="p-1 text-gray-400 hover:text-white">
@@ -254,7 +269,7 @@ export default function PricingManagementPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Enterprise Gym Setup"
-                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                  className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                   required
                 />
               </div>
@@ -267,7 +282,7 @@ export default function PricingManagementPage() {
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     placeholder="e.g. PKR 180,000"
-                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                     required
                   />
                 </div>
@@ -279,7 +294,7 @@ export default function PricingManagementPage() {
                     value={billingPeriod}
                     onChange={(e) => setBillingPeriod(e.target.value)}
                     placeholder="e.g. project, month"
-                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all"
+                    className="h-11 w-full rounded-lg border border-white/10 bg-black px-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all"
                   />
                 </div>
               </div>
@@ -291,7 +306,7 @@ export default function PricingManagementPage() {
                   value={features}
                   onChange={(e) => setFeatures(e.target.value)}
                   placeholder="e.g. Full CAD layout design, Rigging of 30+ machines"
-                  className="w-full rounded-lg border border-white/10 bg-black p-4 text-xs text-white outline-none focus:border-[#82cd2b]/55 transition-all resize-none"
+                  className="w-full rounded-lg border border-white/10 bg-black p-4 text-xs text-white outline-none focus:border-[#D9D9D9]/55 transition-all resize-none"
                   required
                 />
               </div>
@@ -303,7 +318,7 @@ export default function PricingManagementPage() {
                   onClick={() => setIsFeatured(!isFeatured)}
                   className={`h-11 w-full rounded-lg border transition-all flex items-center justify-center gap-2 font-extrabold text-[10px] uppercase tracking-wider cursor-pointer ${
                     isFeatured 
-                      ? "bg-[#82cd2b]/10 border-[#82cd2b]/35 text-[#82cd2b]" 
+                      ? "bg-[#D9D9D9]/10 border-[#D9D9D9]/35 text-[#D9D9D9]" 
                       : "bg-transparent border-white/15 text-gray-400 hover:border-white/25 hover:text-white"
                   }`}
                 >
@@ -322,7 +337,7 @@ export default function PricingManagementPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 h-11 rounded-lg bg-[#82cd2b] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#97ff02] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
+                  className="flex-1 h-11 rounded-lg bg-[#D9D9D9] text-black font-extrabold text-xs uppercase tracking-widest hover:bg-[#F5F5F5] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
                 >
                   {submitting ? (
                     <Loader2 className="h-4.5 w-4.5 animate-spin text-black" />
@@ -341,5 +356,17 @@ export default function PricingManagementPage() {
       )}
 
     </div>
+
+      <ConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Delete this package?"
+        message="This pricing package will be permanently removed."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => !deleting && setDeleteTarget(null)}
+      />
+    </>
   );
 }

@@ -9,6 +9,8 @@ import Team from "./components/team";
 import Testimonials from "./components/testimonials";
 import Pricing from "./components/pricing";
 import Footer from "./components/Footer";
+import BrandIntro from "./components/BrandIntro";
+import JsonLd from "./components/JsonLd";
 import SectionScroll from "./components/providers/SectionScroll";
 import {
   BUSINESS_ADDRESS,
@@ -76,11 +78,9 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen bg-[#050505]">
+      <JsonLd data={structuredData} />
+      <BrandIntro />
       <SectionScroll />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
       <Navbar />
       <Hero />
       <About />
