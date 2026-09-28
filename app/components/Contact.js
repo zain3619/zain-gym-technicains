@@ -322,7 +322,7 @@ export default function Contact() {
               </form>
             </div>
 
-            <div className="space-y-0 border-t border-white/10 lg:border-t-0 lg:border-l lg:border-white/10 lg:pl-12">
+            <div className="hidden space-y-0 border-t border-white/10 lg:block lg:border-t-0 lg:border-l lg:border-white/10 lg:pl-12">
               {contactCards.map(({ title, value, detail, href }) => (
                 <a
                   key={title}
